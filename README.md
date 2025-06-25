@@ -10,7 +10,7 @@
     5、操作员管理     
   
 环境：   
-   IDEA 2016.3    
+   IDEA 2016.3   Intellij 
    SQL Server 2014    
    JavaFX   
    
@@ -52,3 +52,31 @@
 
 操作员-完成退票:
 ![](https://github.com/PhoeBe-NanMu/StudentBookingSystem/blob/master/pics/%E6%93%8D%E4%BD%9C%E5%91%98-%E5%AE%8C%E6%88%90%E9%80%80%E7%A5%A8.PNG)
+
+## 配置（一定要看）
+1. 先下载JavaFX SDK， 下载版本： 24.0.1
+2. 下载好请打开你的 IDE， 然后点开project structure
+
+3. 之后点开Global respitory，添加你下载好的javafx 24.0.1 -> lib 里面的jar文件进入这里
+
+4. 导入好后鼠标右键你导入好的包，然后选择add modle 把他丢进要运行的程序里面，之后点击apply，然后确定
+
+
+## 运行配置（一定要看）
+1. 点击你现在正在运行的class，然后点击edit configuration
+
+2. 点击add new, 然后选择application
+
+3. 然后在mainclass 选择要运行的文件
+
+4. 然后请在modify 那边选择vm option 添加虚拟选项
+
+5. 然后要添加虚拟选项了
+* Macbook ： --module-path /path/to/javafx-sdk-24.0.1/lib --add-modules javafx.controls,javafx.fxml
+打个比方我是macbook，我的vm option就是：--module-path /Users/hillzhang/Libraries/javafx-sdk-24.0.1/lib --add-modules javafx.controls,javafx.fxml
+
+***记得path to这个东西是指你电脑里下载的javafx lib 的地址***
+* Window ： --module-path "\path\to\javafx-sdk-24.0.1\lib" --add-modules javafx.controls,javafx.fxml
+
+
+6. 点击apply 后运行就可以正常的跑啦
