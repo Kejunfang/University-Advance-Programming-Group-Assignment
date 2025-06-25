@@ -25,9 +25,7 @@ import java.sql.SQLException;
 
 import static javafx.geometry.HPos.LEFT;
 
-/**
- * Created by leiYang on 2016/11/27.
- */
+
 public class Login extends Application {
 
     @Override

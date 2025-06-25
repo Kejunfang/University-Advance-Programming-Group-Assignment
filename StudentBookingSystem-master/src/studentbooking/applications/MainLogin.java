@@ -1,0 +1,119 @@
+
+package studentbooking.applications;
+
+import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
+import studentbooking.bean.OperatorEntity;
+import studentbooking.bean.StudentEntity;
+
+import java.io.IOException;
+
+import static javafx.geometry.HPos.LEFT;
+
+public class MainLogin extends Application {
+
+    @Override
+    public void start(Stage primaryStage) {
+        primaryStage.setTitle("Train Ticket System - Mock Login");
+
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(10, 25, 40, 25));
+
+        Text scenetitle = new Text("Welcome to Ticket System");
+        scenetitle.setFont(Font.font(22));
+        grid.add(scenetitle, 0, 0, 2, 1);
+
+        Label userName = new Label("Username:");
+        grid.add(userName, 0, 2);
+
+        TextField userTextField = new TextField();
+        grid.add(userTextField, 1, 2);
+
+        Label pw = new Label("Password:");
+        grid.add(pw, 0, 3);
+
+        PasswordField pwBox = new PasswordField();
+        grid.add(pwBox, 1, 3);
+
+        Label roleLabel = new Label("Login As:");
+        grid.add(roleLabel, 0, 4);
+
+        ChoiceBox<String> choiceBox = new ChoiceBox<>(FXCollections.observableArrayList("User", "Admin"));
+        choiceBox.setValue("User");
+        grid.add(choiceBox, 1, 4);
+
+        Button btn = new Button("Login");
+        HBox hbBtn = new HBox(10);
+        hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
+        hbBtn.getChildren().add(btn);
+        grid.add(hbBtn, 1, 6);
+
+        final Text actiontarget = new Text();
+        grid.add(actiontarget, 0, 6);
+        grid.setColumnSpan(actiontarget, 2);
+        grid.setHalignment(actiontarget, LEFT);
+        actiontarget.setId("actiontarget");
+
+        btn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                String account = userTextField.getText();
+                String password = pwBox.getText();
+                String choice = choiceBox.getValue();
+
+                if (choice.equals("User")) {
+                    if (account.equals("user1") && password.equals("123")) {
+                        StudentEntity student = new StudentEntity();
+                        student.setName("user1");
+                        student.setUniversity("Mock University");
+                        try {
+                            new SelectTicket(student).start(primaryStage);
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    } else {
+                        actiontarget.setFill(Color.FIREBRICK);
+                        actiontarget.setText("Invalid user credentials.");
+                    }
+                } else if (choice.equals("Admin")) {
+                    if (account.equals("admin") && password.equals("admin123")) {
+                        OperatorEntity operator = new OperatorEntity();
+                        operator.setName("admin");
+                        try {
+                            new SelectTicketForOperator(operator).start(primaryStage);
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    } else {
+                        actiontarget.setFill(Color.FIREBRICK);
+                        actiontarget.setText("Invalid admin credentials.");
+                    }
+                }
+            }
+        });
+
+        Scene scene = new Scene(grid, 380, 300);
+        scene.getStylesheets().add("studentbooking/css/button.css");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
