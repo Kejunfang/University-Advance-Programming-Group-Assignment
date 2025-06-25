@@ -43,15 +43,15 @@ public class SelectTicketForOperator extends Application {
 
     OperatorEntity operatorEntity ;
     TableView tableView = new TableView();
-    String mStart = "出发地";
-    String mEnd = "目的地";
+    String mStart = "Departure";
+    String mEnd = "Destination";
 
     Label label = new Label();
 
     public SelectTicketForOperator() {
         this.operatorEntity = new OperatorEntity();
         this.operatorEntity.setAccount(0000);
-        this.operatorEntity.setName("默认操作员");
+        this.operatorEntity.setName("Default Operator");
     }
 
 
@@ -82,11 +82,11 @@ public class SelectTicketForOperator extends Application {
         Scene scene = new Scene(border);
         scene.getStylesheets().add("studentbooking/css/button.css");
         stage.setScene(scene);
-        stage.setTitle("学生火车票订票系统");
+        stage.setTitle("Train Ticket Booking System");
         stage.show();
     }
-//    Button submit = new Button("预定");
-    Button cancel = new Button("退票");
+//    Button submit = new Button("Booking");
+    Button cancel = new Button("Ticket Refund");
 
     private GridPane addCenterPane() {
         GridPane  centerGridPane = new GridPane();
@@ -94,7 +94,7 @@ public class SelectTicketForOperator extends Application {
         centerGridPane.setHgap(10.0);
         centerGridPane.setVgap(10.0);
         centerGridPane.setPadding(new Insets(10.0,10.0,10.0,10.0));
-        label = new Label("所有用户");
+        label = new Label("All Users");
         label.getStyleClass().add("label1");
         centerGridPane.add(label,0,0);
 
@@ -111,37 +111,37 @@ public class SelectTicketForOperator extends Application {
         tableView.setId("tableView");
         tableView.setEditable(true);
 
-        TableColumn checkBoxColumn = new TableColumn("勾选");   //选中框
+        TableColumn checkBoxColumn = new TableColumn("Tick Mark");   //选中框
         checkBoxColumn.setCellFactory(CheckBoxTableCell.forTableColumn(checkBoxColumn));
         checkBoxColumn.setCellValueFactory(new PropertyValueFactory<>("isSelected"));
 
         checkBoxColumn.setEditable(true);
 
-        TableColumn orderNameCol = new TableColumn("订单号");
+        TableColumn orderNameCol = new TableColumn("Order Number");
         orderNameCol.setCellValueFactory(new PropertyValueFactory<>("orderNum"));
         orderNameCol.setPrefWidth(150);
-        TableColumn nameCol = new TableColumn("姓名");
+        TableColumn nameCol = new TableColumn("Name");
         nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
-        TableColumn timeCol = new TableColumn("下单时间");
+        TableColumn timeCol = new TableColumn("Time to Order");
         timeCol.setPrefWidth(160);
         timeCol.setCellValueFactory(new PropertyValueFactory<>("time"));
-        TableColumn isPaidCol = new TableColumn("是否支付");
+        TableColumn isPaidCol = new TableColumn("Whether or not to pay");
         isPaidCol.setCellValueFactory(new PropertyValueFactory<>("ispaid"));
-        TableColumn trainNameCol = new TableColumn("车次");
+        TableColumn trainNameCol = new TableColumn("Number of Trips");
         trainNameCol.setCellValueFactory(new PropertyValueFactory<>("trainName"));
-        TableColumn startNameCol = new TableColumn("起点");
+        TableColumn startNameCol = new TableColumn("Departure");
         startNameCol.setCellValueFactory(new PropertyValueFactory<>("startPlace"));
-        TableColumn endNameCol = new TableColumn("终点");
+        TableColumn endNameCol = new TableColumn("Destination");
         endNameCol.setCellValueFactory(new PropertyValueFactory<>("endPlace"));
-        TableColumn startTimeCol = new TableColumn("发车时间");
+        TableColumn startTimeCol = new TableColumn("Departure Time");
         startTimeCol.setCellValueFactory(new PropertyValueFactory<>("startTime"));
-        TableColumn endTimeCol = new TableColumn("到达时间");
+        TableColumn endTimeCol = new TableColumn("Arrival Time");
         endTimeCol.setCellValueFactory(new PropertyValueFactory<>("endTime"));
-        TableColumn ticketTypeCol = new TableColumn("车票类型");
+        TableColumn ticketTypeCol = new TableColumn("Ticket Type");
         ticketTypeCol.setCellValueFactory(new PropertyValueFactory<>("ticketType"));
-        TableColumn remainTicketsCol = new TableColumn("库存");
+        TableColumn remainTicketsCol = new TableColumn("Stocks");
         remainTicketsCol.setCellValueFactory(new PropertyValueFactory<>("remainTickets"));
-        TableColumn fareCol = new TableColumn("票价");
+        TableColumn fareCol = new TableColumn("Price");
         fareCol.setCellValueFactory(new PropertyValueFactory<>("fare"));
 
         tableView.getColumns().addAll(checkBoxColumn,orderNameCol,nameCol,timeCol,isPaidCol,trainNameCol,startNameCol,endNameCol,startTimeCol,endTimeCol,ticketTypeCol,remainTicketsCol,fareCol);
@@ -159,7 +159,7 @@ public class SelectTicketForOperator extends Application {
             System.out.println("mResult.size()" + mResult.size());
             for (int i = 0; i < size; i++) {
                 if (mResultCopy.get(i)){
-                    System.out.println("结果集合："+"被点击了"+mResult.get(i).getStartTime());
+                    System.out.println("Result set："+"It's been clicked."+mResult.get(i).getStartTime());
                     mResult.get(i).setRemainTickets(mResult.get(i).getRemainTickets()+1);
                     removeFromOrders(mResult.get(i));
                     saveInfo.remove(i);
@@ -205,7 +205,7 @@ public class SelectTicketForOperator extends Application {
         hbox.setSpacing(10);   // Gap between nodes
         hbox.setStyle("-fx-background-color: #f0f0f0;");
 
-//        Text text = new Text("  学生火车票订票系统");
+//        Text text = new Text("  Train Ticket Booking System");
 //        text.setFont(Font.font("Verdana", FontWeight.BOLD, 30));
 //        text.setFill(Color.valueOf("#0795F4"));
 //
@@ -213,7 +213,7 @@ public class SelectTicketForOperator extends Application {
         t.setX(10.0f);
         t.setY(50.0f);
         t.setCache(true);
-        t.setText("学生火车票查询系统");
+        t.setText("Train Ticket Booking System");
 //        t.setFill(Color.RED);
         t.setFill(Color.valueOf("#FF9913"));
         t.setFont(Font.font( 35));
@@ -259,7 +259,7 @@ public class SelectTicketForOperator extends Application {
         final Boolean[] flag = {false};
         stack.setOnMouseClicked((MouseEvent t)->{
             if (!flag[0]){
-                helpText.setText("制作人：雷阳      !");
+                helpText.setText("Operator: Xinran      !");
                 flag[0] = true;
             } else {
                 helpText.setText("?");
@@ -277,12 +277,12 @@ public class SelectTicketForOperator extends Application {
         grid.setVgap(10);
         grid.setPadding(new Insets(10, 20, 0, 10));
 
-        Text category = new Text("工号："+operatorEntity.getAccount());
+        Text category = new Text("Work Number："+operatorEntity.getAccount());
         category.setFont(Font.font( 20));
         grid.setMargin(category,new Insets(10,0,0,0));
         grid.add(category, 1,0);
 
-        Text school = new Text("姓名："+operatorEntity.getName());
+        Text school = new Text("Name："+operatorEntity.getName());
         school.setFont(Font.font(20));
         grid.add(school, 1, 1);
 
@@ -290,20 +290,20 @@ public class SelectTicketForOperator extends Application {
 
 //
 //        TextField endCity = new TextField();
-//        endCity.setPromptText("到达城市");
+//        endCity.setPromptText("Destination");
 //        grid.setMargin(endCity,new Insets(5,0,10,0));
 //        GridPane.setConstraints(endCity, 1, 3);
 //        grid.getChildren().add(endCity);
 
 
-        Text tip1 = new Text("您可以选择");
+        Text tip1 = new Text("You can choose");
         tip1.setFont(Font.font("Arial", 12));
         tip1.setFill(Color.web("#A2A2A2"));
         grid.add(tip1,1,3);
 
 
         TextField nameSpace = new TextField();
-        nameSpace.setPromptText("输入姓名");
+        nameSpace.setPromptText("Enter your name");
         nameSpace.setFocusTraversable(false);
         grid.setMargin(nameSpace,new Insets(10,0,0,0));
         GridPane.setConstraints(nameSpace, 1, 4);
@@ -311,18 +311,18 @@ public class SelectTicketForOperator extends Application {
 
 
         Button searchTicket = new Button();
-        searchTicket.setText("按照姓名搜索");
+        searchTicket.setText("Search by Name");
         searchTicket.getStyleClass().add("button1");
         grid.setMargin(searchTicket,new Insets(0,0,10,0));
         grid.add(searchTicket,1,5);
 
-        Text tip2 = new Text("或者是");
+        Text tip2 = new Text("Or");
         tip2.setFont(Font.font("Arial", FontWeight.BOLD, 12));
         tip2.setFill(Color.web("#A2A2A2"));
         grid.add(tip2,1,6);
 
         Button searchOrders = new Button();
-        searchOrders.setText("查看全部订单");
+        searchOrders.setText("View All Orders");
         searchOrders.getStyleClass().add("button2");
         grid.add(searchOrders,1,7);
 

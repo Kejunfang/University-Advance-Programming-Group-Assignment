@@ -32,38 +32,38 @@ public class Login extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("学生火车票订票系统");
+        primaryStage.setTitle("Train Ticket Booking System");
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(10, 25, 40, 25));
 
-        Text scenetitle = new Text("欢迎使用！");
+        Text scenetitle = new Text("Welcome！");
         scenetitle.setFont(Font.font(22));
         grid.add(scenetitle, 0, 0, 2, 1);
 
-        Label userName = new Label("   用户名:");
+        Label userName = new Label("   Username:");
         grid.add(userName, 0, 2);
 
         TextField userTextField = new TextField();
         grid.add(userTextField, 1, 2);
 
-        Label pw = new Label("      密码:");
+        Label pw = new Label("      Password:");
         grid.add(pw, 0, 3);
 
         PasswordField pwBox = new PasswordField();
         grid.add(pwBox, 1, 3);
 
-        Label lt = new Label("登陆选项:");
+        Label lt = new Label("Login Options:");
         grid.add(lt, 0, 4);
 
-        ChoiceBox choiceBox = new ChoiceBox(FXCollections.observableArrayList("普通用户","操作员"));
-        choiceBox.setValue("普通用户");
+        ChoiceBox choiceBox = new ChoiceBox(FXCollections.observableArrayList("User","Admin"));
+        choiceBox.setValue("User");
         grid.add(choiceBox,1,4);
 
 
-        Button btn = new Button("  登陆  ");
+        Button btn = new Button("  Login  ");
         btn.getStyleClass().add("button5");
         HBox hbBtn = new HBox(10);
         hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
@@ -86,7 +86,7 @@ public class Login extends Application {
                 System.out.println(choice);
                 DBHelper dbHelper = new DBHelper();
 
-                if (choice.equals("普通用户")){
+                if (choice.equals("User")){
 
                     dbHelper.executeSQL("SELECT * FROM Student where(name='"+account+"' and password='"+password+"')");
                     ResultSet resultSet = dbHelper.getResultSet();
@@ -96,7 +96,7 @@ public class Login extends Application {
                     try {
                         if (!resultSet1.next()){
                             actiontarget.setFill(Color.FIREBRICK);
-                            actiontarget.setText("    账号或密码错误！");
+                            actiontarget.setText("    Incorrect account number or password！");
                             return;
                         }
                     } catch (SQLException e1) {
@@ -132,7 +132,7 @@ public class Login extends Application {
                         e1.printStackTrace();
                     }
 
-                }else if (choice.equals("操作员")){
+                }else if (choice.equals("Admin")){
                     dbHelper.executeSQL("SELECT * FROM Operator where(account='"+account+"' and password='"+password+"')");
                     ResultSet resultSet = dbHelper.getResultSet();
                     DBHelper dbHelper1 = new DBHelper();
@@ -141,7 +141,7 @@ public class Login extends Application {
                     try {
                         if (!resultSet1.next()){
                             actiontarget.setFill(Color.FIREBRICK);
-                            actiontarget.setText("    工号或密码错误！");
+                            actiontarget.setText("    Incorrect work number or password！");
                             return;
                         }
                     } catch (SQLException e1) {

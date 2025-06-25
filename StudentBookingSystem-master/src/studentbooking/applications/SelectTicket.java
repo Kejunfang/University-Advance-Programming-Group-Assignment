@@ -42,8 +42,8 @@ public class SelectTicket extends Application {
 
     StudentEntity studentEntity ;
     TableView tableView = new TableView();
-    String mStart = "出发地";
-    String mEnd = "目的地";
+    String mStart = "Departure";
+    String mEnd = "Destination";
 
     Label label = new Label();
 
@@ -81,11 +81,11 @@ public class SelectTicket extends Application {
         Scene scene = new Scene(border);
         scene.getStylesheets().add("studentbooking/css/button.css");
         stage.setScene(scene);
-        stage.setTitle("学生火车票订票系统");
+        stage.setTitle("Train Ticket Booking System");
         stage.show();
     }
-    Button submit = new Button("预定");
-    Button cancel = new Button("退票");
+    Button submit = new Button("Booking");
+    Button cancel = new Button("Ticket Refund");
 
     private GridPane addCenterPane() {
         GridPane  centerGridPane = new GridPane();
@@ -110,28 +110,28 @@ public class SelectTicket extends Application {
         tableView.setEditable(true);
         tableView.setPrefHeight(500);
 
-        TableColumn checkBoxColumn = new TableColumn("勾选");   //选中框
+        TableColumn checkBoxColumn = new TableColumn("Tick Mark");   //选中框
         checkBoxColumn.setCellFactory(CheckBoxTableCell.forTableColumn(checkBoxColumn));
         checkBoxColumn.setCellValueFactory(new PropertyValueFactory<>("isSelected"));
 
         checkBoxColumn.setEditable(true);
 
 
-        TableColumn trainNameCol = new TableColumn("车次");
+        TableColumn trainNameCol = new TableColumn("Number of Trips");
         trainNameCol.setCellValueFactory(new PropertyValueFactory<>("trainName"));
-        TableColumn startNameCol = new TableColumn("起点");
+        TableColumn startNameCol = new TableColumn("Departure");
         startNameCol.setCellValueFactory(new PropertyValueFactory<>("startPlace"));
-        TableColumn endNameCol = new TableColumn("终点");
+        TableColumn endNameCol = new TableColumn("Destination");
         endNameCol.setCellValueFactory(new PropertyValueFactory<>("endPlace"));
-        TableColumn remainTicketsCol = new TableColumn("库存");
+        TableColumn remainTicketsCol = new TableColumn("Stocks");
         remainTicketsCol.setCellValueFactory(new PropertyValueFactory<>("remainTickets"));
-        TableColumn ticketTypeCol = new TableColumn("车票类型");
+        TableColumn ticketTypeCol = new TableColumn("Ticket type");
         ticketTypeCol.setCellValueFactory(new PropertyValueFactory<>("ticketType"));
-        TableColumn startTimeCol = new TableColumn("发车时间");
+        TableColumn startTimeCol = new TableColumn("Departure Time");
         startTimeCol.setCellValueFactory(new PropertyValueFactory<>("startTime"));
-        TableColumn endTimeCol = new TableColumn("到达时间");
+        TableColumn endTimeCol = new TableColumn("Arrival Time");
         endTimeCol.setCellValueFactory(new PropertyValueFactory<>("endTime"));
-        TableColumn fareCol = new TableColumn("票价");
+        TableColumn fareCol = new TableColumn("Price");
         fareCol.setCellValueFactory(new PropertyValueFactory<>("fare"));
 
 
@@ -147,13 +147,13 @@ public class SelectTicket extends Application {
                 Boolean aBoolean = mResult.get(i).getIsIsSelected();
                 if (aBoolean){
 
-                    System.out.println("结果集合："+"被点击了"+mResult.get(i).getStartTime());
+                    System.out.println("Result sets："+"It's been clicked."+mResult.get(i).getStartTime());
                     mResult.get(i).setRemainTickets(mResult.get(i).getRemainTickets()-1);
 //                    saveInfo.add(mResult.get(i));
                     saveIntoSQL(mResult.get(i));
 
                 } else {
-                    System.out.println("结果集合："+"没有点击"+mResult.get(i).getStartTime());
+                    System.out.println("Result sets："+"It's been clicked."+mResult.get(i).getStartTime());
                 }
             }
         });
@@ -168,7 +168,7 @@ public class SelectTicket extends Application {
             System.out.println("mResult.size()" + mResult.size());
             for (int i = 0; i < size; i++) {
                 if (mResultCopy.get(i)){
-                    System.out.println("结果集合："+"被点击了"+mResult.get(i).getStartTime());
+                    System.out.println("Result sets："+"It's been clicked."+mResult.get(i).getStartTime());
                     mResult.get(i).setRemainTickets(mResult.get(i).getRemainTickets()+1);
                     removeFromOrders(mResult.get(i));
 //                    saveInfo.remove(i);
@@ -229,7 +229,7 @@ public class SelectTicket extends Application {
         hbox.setSpacing(10);   // Gap between nodes
         hbox.setStyle("-fx-background-color: #f0f0f0;");
 
-//        Text text = new Text("  学生火车票订票系统");
+//        Text text = new Text("  Train Ticket Booking System");
 //        text.setFont(Font.font("Verdana", FontWeight.BOLD, 30));
 //        text.setFill(Color.valueOf("#0795F4"));
 //
@@ -237,7 +237,7 @@ public class SelectTicket extends Application {
         t.setX(10.0f);
         t.setY(50.0f);
         t.setCache(true);
-        t.setText("学生火车票订票系统");
+        t.setText("Train Ticket Booking System");
 //        t.setFill(Color.RED);
         t.setFill(Color.valueOf("#0795F4"));
         t.setFont(Font.font( 35));
@@ -283,7 +283,7 @@ public class SelectTicket extends Application {
         final Boolean[] flag = {false};
         stack.setOnMouseClicked((MouseEvent t)->{
             if (!flag[0]){
-                helpText.setText("制作人：雷阳      !");
+                helpText.setText("Producer: Xinran     !");
                 flag[0] = true;
             } else {
                 helpText.setText("?");
@@ -301,47 +301,47 @@ public class SelectTicket extends Application {
         grid.setVgap(10);
         grid.setPadding(new Insets(10, 20, 0, 10));
 
-        Text category = new Text("用户："+studentEntity.getName());
+        Text category = new Text("User："+studentEntity.getName());
         category.setFont(Font.font( 20));
         grid.setMargin(category,new Insets(10,0,0,0));
         grid.add(category, 1,0);
 
-        Text school = new Text("学校："+studentEntity.getUniversity());
+        Text school = new Text("School："+studentEntity.getUniversity());
         school.setFont(Font.font(20));
         grid.add(school, 1, 1);
 
 
         TextField startCity = new TextField();
-        startCity.setPromptText("出发城市");
+        startCity.setPromptText("Departure");
         grid.setMargin(startCity,new Insets(10,0,0,0));
         GridPane.setConstraints(startCity, 1, 2);
         grid.getChildren().add(startCity);
 
         TextField endCity = new TextField();
-        endCity.setPromptText("到达城市");
+        endCity.setPromptText("Destination");
         grid.setMargin(endCity,new Insets(5,0,10,0));
         GridPane.setConstraints(endCity, 1, 3);
         grid.getChildren().add(endCity);
 
 
-        Text tip1 = new Text("您可以选择");
+        Text tip1 = new Text("You can choose");
         tip1.setFont(Font.font("Arial", 12));
         tip1.setFill(Color.web("#A2A2A2"));
         grid.add(tip1,1,4);
 
         Button searchTicket = new Button();
-        searchTicket.setText("搜索车票");
+        searchTicket.setText("Search Tickets");
         searchTicket.getStyleClass().add("button1");
         grid.setMargin(searchTicket,new Insets(0,0,10,0));
         grid.add(searchTicket,1,5);
 
-        Text tip2 = new Text("或者是");
+        Text tip2 = new Text("Or");
         tip2.setFont(Font.font("Arial", FontWeight.BOLD, 12));
         tip2.setFill(Color.web("#A2A2A2"));
         grid.add(tip2,1,6);
 
         Button searchOrders = new Button();
-        searchOrders.setText("查看订单");
+        searchOrders.setText("View Order");
         searchOrders.getStyleClass().add("button2");
         grid.add(searchOrders,1,7);
 
@@ -383,9 +383,9 @@ public class SelectTicket extends Application {
                         if (endNum > num) {
                             String ticketType;
                             if (studentEntity.getAddress().contains(mEndPlace)){
-                                ticketType = "学生票";
+                                ticketType = "Student Ticket";
                             } else{
-                                ticketType = "成人票";
+                                ticketType = "Adult Ticket";
                             }
                             float mEndFare = resultSet1.getFloat("fare");
 
