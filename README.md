@@ -1,9 +1,9 @@
 ## 环境
-编程语言：Java
-软件平台：IntelliJ IDEA
-数据库：MySQL
-数据库可视化：IntelliJ IDEA 
-UI 设计：JavaFX
+1. 编程语言：Java
+2. 软件平台：IntelliJ IDEA
+3. 数据库：MySQL
+4. 数据库可视化：IntelliJ IDEA 
+5. UI 设计：JavaFX
 
 
 
