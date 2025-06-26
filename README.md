@@ -1,3 +1,12 @@
+## 环境
+编程语言：Java
+软件平台：IntelliJ IDEA
+数据库：MySQL
+数据库可视化：IntelliJ IDEA 
+UI 设计：JavaFX
+
+
+
 ## 配置（一定要看）
 1. 先下载JavaFX SDK， 下载版本： 24.0.1
 2. 下载好请打开你的 IDE， 然后点开project structure
