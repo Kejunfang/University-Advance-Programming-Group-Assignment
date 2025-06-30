@@ -56,5 +56,4 @@
 
 
 
-6. After clicking **Apply**, just hit **Run**—and your JavaFX application should run smoothly! 
-<img width="1470" alt="Screenshot 2025-06-25 at 18 10 18" src="https://github.com/user-attachments/assets/79d8a8bd-a5c8-450d-aeb0-90e270b613f2" />
+6. After clicking **Apply**, just hit **Run**—and your JavaFX application should run smoothly!
