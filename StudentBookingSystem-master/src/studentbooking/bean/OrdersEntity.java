@@ -7,8 +7,7 @@ import javax.persistence.*;
 /**
  * Created by leiyang on 2016/12/1.
  */
-@Entity
-@Table(name = "Orders", schema = "dbo", catalog = "Ticket")
+
 public class OrdersEntity {
     private SimpleBooleanProperty isSelected = new SimpleBooleanProperty();	//是否选中
     private String orderNum;
@@ -36,8 +35,7 @@ public class OrdersEntity {
         this.isSelected.set(isSelected);
     }
 
-    @Id
-    @Column(name = "order_num")
+
     public String getOrderNum() {
         return orderNum;
     }
@@ -46,8 +44,6 @@ public class OrdersEntity {
         this.orderNum = orderNum;
     }
 
-    @Basic
-    @Column(name = "name")
     public String getName() {
         return name;
     }
@@ -56,8 +52,6 @@ public class OrdersEntity {
         this.name = name;
     }
 
-    @Basic
-    @Column(name = "time")
     public String getTime() {
         return time;
     }
@@ -66,8 +60,6 @@ public class OrdersEntity {
         this.time = time;
     }
 
-    @Basic
-    @Column(name = "ispaid")
     public String getIspaid() {
         return ispaid;
     }
@@ -76,8 +68,6 @@ public class OrdersEntity {
         this.ispaid = ispaid;
     }
 
-    @Basic
-    @Column(name = "train_name")
     public String getTrainName() {
         return trainName;
     }
@@ -86,8 +76,6 @@ public class OrdersEntity {
         this.trainName = trainName;
     }
 
-    @Basic
-    @Column(name = "start_place")
     public String getStartPlace() {
         return startPlace;
     }
@@ -96,8 +84,6 @@ public class OrdersEntity {
         this.startPlace = startPlace;
     }
 
-    @Basic
-    @Column(name = "end_place")
     public String getEndPlace() {
         return endPlace;
     }
@@ -106,8 +92,6 @@ public class OrdersEntity {
         this.endPlace = endPlace;
     }
 
-    @Basic
-    @Column(name = "start_time")
     public String getStartTime() {
         return startTime;
     }
@@ -116,8 +100,6 @@ public class OrdersEntity {
         this.startTime = startTime;
     }
 
-    @Basic
-    @Column(name = "end_time")
     public String getEndTime() {
         return endTime;
     }
@@ -126,8 +108,6 @@ public class OrdersEntity {
         this.endTime = endTime;
     }
 
-    @Basic
-    @Column(name = "ticket_type")
     public String getTicketType() {
         return ticketType;
     }
@@ -136,8 +116,6 @@ public class OrdersEntity {
         this.ticketType = ticketType;
     }
 
-    @Basic
-    @Column(name = "remain_tickets")
     public Integer getRemainTickets() {
         return remainTickets;
     }
@@ -146,8 +124,6 @@ public class OrdersEntity {
         this.remainTickets = remainTickets;
     }
 
-    @Basic
-    @Column(name = "fare")
     public float getFare() {
         return fare;
     }
@@ -156,7 +132,6 @@ public class OrdersEntity {
         this.fare = fare;
     }
 
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -180,7 +155,6 @@ public class OrdersEntity {
         return true;
     }
 
-    @Override
     public int hashCode() {
         int result = orderNum != null ? orderNum.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);

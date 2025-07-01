@@ -1,64 +1,47 @@
 package studentbooking.applications;
- 
-import javafx.scene.shape.Circle;
+
+// 添加缺失的导入
+import javafx.geometry.Pos;
 import studentbooking.db.DBHelper;
+import studentbooking.bean.OrdersEntity;
 import studentbooking.bean.StudentEntity;
 import studentbooking.bean.TicketInfoEntity;
+import studentbooking.bean.TrainInfoEntity;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.effect.*;
+import javafx.scene.effect.Reflection;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import static javafx.geometry.Pos.CENTER;
-import static javafx.geometry.Pos.CENTER_RIGHT;
+import java.util.List;
 
-/**
- * Created by leiYang on 2016/11/27.
- */
- 
 public class SelectTicket extends Application {
 
-
-    StudentEntity studentEntity ;
-    TableView tableView = new TableView();
-    String mStart = "Departure";
-    String mEnd = "Destination";
-
-    Label label = new Label();
+    private StudentEntity studentEntity;
+    private TableView<TicketInfoEntity> tableView = new TableView<>();
+    private final String defaultStart = "Departure";
+    private final String defaultEnd = "Destination";
+    private Label routeLabel = new Label(defaultStart + " ——> " + defaultEnd);
+    private final ObservableList<TicketInfoEntity> ticketData = FXCollections.observableArrayList();
 
     public SelectTicket() {
         this.studentEntity = new StudentEntity();
         this.studentEntity.setName("default");
-        this.studentEntity.setUniversity("default");
-        this.studentEntity.setAddress("default");
-    }
-
-    ObservableList<TicketInfoEntity> data1 = FXCollections.observableArrayList();
-
-
-    public static void main(String[] args) {
-        launch(SelectTicket.class, args);
     }
 
     public SelectTicket(StudentEntity studentEntity) {
@@ -66,424 +49,269 @@ public class SelectTicket extends Application {
     }
 
     @Override
-    public void start(Stage stage) throws IOException {
+    public void start(Stage stage) {
+        // 创建主布局
+        BorderPane mainLayout = new BorderPane();
 
-        BorderPane border = new BorderPane();
-        HBox hbox = addHBox();
+        // 顶部标题
+        HBox header = createHeader();
+        mainLayout.setTop(header);
 
-        border.setTop(hbox);
-        border.setLeft(addAnchorPane(addGridPane()));
+        // 左侧用户面板
+        GridPane userPanel = createUserPanel();
+        mainLayout.setLeft(userPanel);
 
-        addStackPane(hbox);  
+        // 中央内容区域
+        GridPane centerPanel = createCenterPanel();
+        mainLayout.setCenter(centerPanel);
 
-      border.setCenter(addCenterPane());
-
-        Scene scene = new Scene(border);
-        scene.getStylesheets().add("studentbooking/css/button.css");
+        // 配置场景和舞台
+        Scene scene = new Scene(mainLayout, 1000, 700);
+        scene.getStylesheets().add(getClass().getResource("/studentbooking/css/button.css").toExternalForm());
         stage.setScene(scene);
         stage.setTitle("Train Ticket Booking System");
         stage.show();
     }
-    Button submit = new Button("Booking");
-    Button cancel = new Button("Ticket Refund");
 
-    private GridPane addCenterPane() {
-        GridPane  centerGridPane = new GridPane();
-        centerGridPane.setAlignment(CENTER);
-        centerGridPane.setHgap(10.0);
-        centerGridPane.setVgap(10.0);
-        centerGridPane.setPadding(new Insets(10.0,10.0,10.0,10.0));
-        label = new Label(mStart+" ——> "+mEnd);
-        label.getStyleClass().add("label1");
-        centerGridPane.add(label,0,0);
+    private HBox createHeader() {
+        HBox header = new HBox();
+        header.setPadding(new Insets(10, 20, 35, 20));
+        header.setSpacing(10);
+        header.setStyle("-fx-background-color: #f0f0f0;");
 
-        submit.getStyleClass().add("button3");
-        centerGridPane.add(submit,1,0);
-        submit.setVisible(false);
+        Text title = new Text("Train Ticket Booking System");
+        title.setFill(Color.valueOf("#0795F4"));
+        title.setFont(Font.font(35));
 
-        cancel.getStyleClass().add("button3");
-        centerGridPane.add(cancel,2,0);
-        cancel.setVisible(false);
+        Reflection reflection = new Reflection();
+        reflection.setFraction(0.7f);
+        title.setEffect(reflection);
 
-        tableView = new TableView();
-        tableView.setId("tableView");
+        header.getChildren().add(title);
+        return header;
+    }
+
+    private GridPane createUserPanel() {
+        GridPane userPanel = new GridPane();
+        userPanel.setHgap(10);
+        userPanel.setVgap(10);
+        userPanel.setPadding(new Insets(10, 20, 0, 10));
+
+        // 用户信息
+        Text userInfo = new Text("User: " + studentEntity.getName());
+        userInfo.setFont(Font.font(20));
+        userPanel.add(userInfo, 1, 0);
+
+        Text universityInfo = new Text("University: " + studentEntity.getUniversity());
+        universityInfo.setFont(Font.font(20));
+        userPanel.add(universityInfo, 1, 1);
+
+        // 搜索框
+        TextField departureField = new TextField();
+        departureField.setPromptText("Departure");
+        userPanel.add(departureField, 1, 2);
+
+        TextField destinationField = new TextField();
+        destinationField.setPromptText("Destination");
+        userPanel.add(destinationField, 1, 3);
+
+        // 按钮
+        Button searchButton = new Button("Search Tickets");
+        searchButton.getStyleClass().add("button1");
+        userPanel.add(searchButton, 1, 5);
+
+        Button viewOrdersButton = new Button("View My Orders");
+        viewOrdersButton.getStyleClass().add("button2");
+        userPanel.add(viewOrdersButton, 1, 7);
+
+        // 按钮事件处理
+        searchButton.setOnAction(e -> {
+            String departure = departureField.getText().trim();
+            String destination = destinationField.getText().trim();
+
+            if (departure.isEmpty()) departure = defaultStart;
+            if (destination.isEmpty()) destination = defaultEnd;
+
+            routeLabel.setText(departure + " ——> " + destination);
+            searchTickets(departure, destination);
+        });
+
+        viewOrdersButton.setOnAction(e -> {
+            loadUserOrders();
+        });
+
+        return userPanel;
+    }
+
+    private GridPane createCenterPanel() {
+        GridPane centerPanel = new GridPane();
+        centerPanel.setAlignment(Pos.CENTER);
+        centerPanel.setHgap(10);
+        centerPanel.setVgap(10);
+        centerPanel.setPadding(new Insets(10));
+
+        // 路线标签
+        routeLabel.getStyleClass().add("label1");
+        centerPanel.add(routeLabel, 0, 0);
+
+        // 操作按钮
+        Button bookButton = new Button("Book Selected");
+        bookButton.getStyleClass().add("button3");
+        centerPanel.add(bookButton, 1, 0);
+
+        Button cancelButton = new Button("Cancel Selected");
+        cancelButton.getStyleClass().add("button3");
+        centerPanel.add(cancelButton, 2, 0);
+
+        // 车票表格
+        setupTicketTable();
+        centerPanel.add(tableView, 0, 1, 3, 1);
+
+        // 按钮事件
+        bookButton.setOnAction(e -> bookSelectedTickets());
+        cancelButton.setOnAction(e -> cancelSelectedTickets());
+
+        return centerPanel;
+    }
+
+    private void setupTicketTable() {
         tableView.setEditable(true);
-        tableView.setPrefHeight(500);
 
-        TableColumn checkBoxColumn = new TableColumn("Tick Mark");   //选中框
-        checkBoxColumn.setCellFactory(CheckBoxTableCell.forTableColumn(checkBoxColumn));
-        checkBoxColumn.setCellValueFactory(new PropertyValueFactory<>("isSelected"));
+        // 创建列
+        TableColumn<TicketInfoEntity, String> trainCol = new TableColumn<>("Train");
+        trainCol.setCellValueFactory(new PropertyValueFactory<>("trainName"));
 
-        checkBoxColumn.setEditable(true);
+        TableColumn<TicketInfoEntity, String> fromCol = new TableColumn<>("From");
+        fromCol.setCellValueFactory(new PropertyValueFactory<>("startPlace"));
 
+        TableColumn<TicketInfoEntity, String> toCol = new TableColumn<>("To");
+        toCol.setCellValueFactory(new PropertyValueFactory<>("endPlace"));
 
-        TableColumn trainNameCol = new TableColumn("Number of Trips");
-        trainNameCol.setCellValueFactory(new PropertyValueFactory<>("trainName"));
-        TableColumn startNameCol = new TableColumn("Departure");
-        startNameCol.setCellValueFactory(new PropertyValueFactory<>("startPlace"));
-        TableColumn endNameCol = new TableColumn("Destination");
-        endNameCol.setCellValueFactory(new PropertyValueFactory<>("endPlace"));
-        TableColumn remainTicketsCol = new TableColumn("Stocks");
-        remainTicketsCol.setCellValueFactory(new PropertyValueFactory<>("remainTickets"));
-        TableColumn ticketTypeCol = new TableColumn("Ticket type");
-        ticketTypeCol.setCellValueFactory(new PropertyValueFactory<>("ticketType"));
-        TableColumn startTimeCol = new TableColumn("Departure Time");
-        startTimeCol.setCellValueFactory(new PropertyValueFactory<>("startTime"));
-        TableColumn endTimeCol = new TableColumn("Arrival Time");
-        endTimeCol.setCellValueFactory(new PropertyValueFactory<>("endTime"));
-        TableColumn fareCol = new TableColumn("Price");
-        fareCol.setCellValueFactory(new PropertyValueFactory<>("fare"));
+        TableColumn<TicketInfoEntity, String> departCol = new TableColumn<>("Departure");
+        departCol.setCellValueFactory(new PropertyValueFactory<>("startTime"));
 
+        TableColumn<TicketInfoEntity, String> arriveCol = new TableColumn<>("Arrival");
+        arriveCol.setCellValueFactory(new PropertyValueFactory<>("endTime"));
 
-        tableView.getColumns().addAll(checkBoxColumn,trainNameCol,startNameCol,endNameCol,remainTicketsCol,ticketTypeCol,startTimeCol,endTimeCol,fareCol);
+        TableColumn<TicketInfoEntity, String> typeCol = new TableColumn<>("Type");
+        typeCol.setCellValueFactory(new PropertyValueFactory<>("ticketType"));
 
-        centerGridPane.add(tableView,0,1,3,1);
+        TableColumn<TicketInfoEntity, Integer> seatsCol = new TableColumn<>("Seats");
+        seatsCol.setCellValueFactory(new PropertyValueFactory<>("remainTickets"));
 
-        submit.setOnMouseClicked((MouseEvent t)->{
+        TableColumn<TicketInfoEntity, Double> priceCol = new TableColumn<>("Price");
+        priceCol.setCellValueFactory(new PropertyValueFactory<>("fare"));
 
-            ObservableList<TicketInfoEntity> mResult = tableView.getItems();
-            System.out.println("mResult.size()" + mResult.size());
-            for (int i = 0; i < mResult.size(); i++) {
-                Boolean aBoolean = mResult.get(i).getIsIsSelected();
-                if (aBoolean){
-
-                    System.out.println("Result sets："+"It's been clicked."+mResult.get(i).getStartTime());
-                    mResult.get(i).setRemainTickets(mResult.get(i).getRemainTickets()-1);
-//                    saveInfo.add(mResult.get(i));
-                    saveIntoSQL(mResult.get(i));
-
-                } else {
-                    System.out.println("Result sets："+"It's been clicked."+mResult.get(i).getStartTime());
-                }
-            }
-        });
-
-        cancel.setOnMouseClicked((MouseEvent t)->{
-            ObservableList<TicketInfoEntity> mResult = tableView.getItems();
-            ArrayList<Boolean> mResultCopy = new ArrayList<Boolean>();
-            int size = mResult.size();
-            for (int i = 0; i < size; i++) {
-                mResultCopy.add(mResult.get(i).getIsIsSelected());
-            }
-            System.out.println("mResult.size()" + mResult.size());
-            for (int i = 0; i < size; i++) {
-                if (mResultCopy.get(i)){
-                    System.out.println("Result sets："+"It's been clicked."+mResult.get(i).getStartTime());
-                    mResult.get(i).setRemainTickets(mResult.get(i).getRemainTickets()+1);
-                    removeFromOrders(mResult.get(i));
-//                    saveInfo.remove(i);
-                    data1.remove(i);
-                }
-            }
-        });
-
-        return centerGridPane;
+        // 添加列到表格
+        tableView.getColumns().addAll(trainCol, fromCol, toCol, departCol, arriveCol, typeCol, seatsCol, priceCol);
+        tableView.setItems(ticketData);
     }
 
-    private void removeFromOrders(TicketInfoEntity ticketInfoEntity) {
-        String sqlstr0 = "SELECT * FROM Orders WHERE (train_name = '"+ticketInfoEntity.getTrainName()+"' AND start_time = '"+ticketInfoEntity.getStartTime()+"' AND end_time = '"+ticketInfoEntity.getEndTime()+"')";
+    private void searchTickets(String departure, String destination) {
+        ticketData.clear();
+        List<TrainInfoEntity> allTrainInfo = DBHelper.getAllTrainInfos();
+        List<OrdersEntity> allOrders = DBHelper.getAllOrders();
 
-        DBHelper dbHelper = new DBHelper();
-        dbHelper.executeSQL(sqlstr0);
-        ResultSet resultSet = dbHelper.getResultSet();
-        String strNum = "201612151212";
-        try {
-            if (resultSet.next()){
-                strNum = resultSet.getString("order_num");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        for (TrainInfoEntity departureInfo : allTrainInfo) {
+            if (departureInfo.getStationName().equals(departure)) {
+                for (TrainInfoEntity arrivalInfo : allTrainInfo) {
+                    if (arrivalInfo.getStationName().equals(destination) &&
+                            arrivalInfo.getTrainName().equals(departureInfo.getTrainName()) &&
+                            arrivalInfo.getNum() > departureInfo.getNum()) {
 
-        String sqlstr = "DELETE FROM Orders WHERE order_num = '"+strNum+"'";
-        dbHelper.executeSQL(sqlstr);
-        String sqlstrChangeRemain = "UPDATE Orders SET remain_tickets = "+ticketInfoEntity.getRemainTickets()+" WHERE ( train_name = '"+ticketInfoEntity.getTrainName()+"'AND start_place = '"+ticketInfoEntity.getStartPlace()+"' AND end_place = '"+ticketInfoEntity.getEndPlace()+"')";
-        dbHelper.executeSQL(sqlstrChangeRemain);
+                        // 创建车票信息
+                        TicketInfoEntity ticket = new TicketInfoEntity();
+                        ticket.setTrainName(departureInfo.getTrainName());
+                        ticket.setStartPlace(departure);
+                        ticket.setEndPlace(destination);
+                        ticket.setStartTime(departureInfo.getStartTime());
+                        ticket.setEndTime(arrivalInfo.getArriveTime());
 
+                        // 确定票型
+                        ticket.setTicketType(studentEntity.getAddress().contains(destination) ?
+                                "Student Ticket" : "Adult Ticket");
 
-    }
+                        // 计算价格
+                        float price = arrivalInfo.getFare() - departureInfo.getFare() + 13.5f;
+                        ticket.setFare(price);
 
-    ArrayList<TicketInfoEntity> saveInfo = new ArrayList<>();
-    private int orderNum = 0;
-
-    private void saveIntoSQL(TicketInfoEntity ticketInfoEntity) {
-        Date date = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String time = sdf.format(date);
-        orderNum++;
-        Date date1 = new Date();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-        String time1 = simpleDateFormat.format(date1);
-
-        String sqlstr = "INSERT INTO Orders VALUES ('"+time1+"','"+studentEntity.getName()+"',"+"'"+time+"',"+"'否',"+"'"+ticketInfoEntity.getTrainName()+"',"+"'"+ticketInfoEntity.getStartPlace()+"',"+"'"+ticketInfoEntity.getEndPlace()+"',"+"'"+ticketInfoEntity.getStartTime()+"',"+"'"+ticketInfoEntity.getEndTime()+"',"+"'"+ticketInfoEntity.getTicketType()+"',"+"'"+ticketInfoEntity.getRemainTickets()+"',"+"'"+ticketInfoEntity.getFare()+"')";
-        DBHelper dbHelper = new DBHelper();
-        dbHelper.executeSQL(sqlstr);
-
-    }
-
-
-    private HBox addHBox() {
- 
-        HBox hbox = new HBox();
-        hbox.setPadding(new Insets(10, 20, 35, 20));
-        hbox.setSpacing(10);   // Gap between nodes
-        hbox.setStyle("-fx-background-color: #f0f0f0;");
-
-//        Text text = new Text("  Train Ticket Booking System");
-//        text.setFont(Font.font("Verdana", FontWeight.BOLD, 30));
-//        text.setFill(Color.valueOf("#0795F4"));
-//
-        Text t = new Text();
-        t.setX(10.0f);
-        t.setY(50.0f);
-        t.setCache(true);
-        t.setText("Train Ticket Booking System");
-//        t.setFill(Color.RED);
-        t.setFill(Color.valueOf("#0795F4"));
-        t.setFont(Font.font( 35));
-
-        Reflection r = new Reflection();
-        r.setFraction(0.7f);
-
-        t.setEffect(r);
-
-//        t.setTranslateY(400);
-
-        hbox.getChildren().add(t);
-
-
-        return hbox;
-    }
-
-
-    private void addStackPane(HBox hb) {
- 
-        StackPane stack = new StackPane();
-        Circle helpIcon = new Circle(14.5);
-        helpIcon.setFill(new LinearGradient(0,0,0,1, true, CycleMethod.NO_CYCLE,
-            new Stop[]{
-            new Stop(0,Color.web("#0078D7")),
-            new Stop(0.5, Color.web("#0078D7")),
-            new Stop(1,Color.web("#0078D7")),}));
-        helpIcon.setStroke(Color.web("#0078D7"));
-
-
-        Text helpText = new Text("?");
-        helpText.setFont(Font.font("Verdana", FontWeight.BOLD, 15));
-        helpText.setFill(Color.WHITE);
-        helpText.setStroke(Color.web("#7080A0")); 
-        
-        stack.getChildren().addAll(helpIcon, helpText);
-        stack.setAlignment(CENTER_RIGHT);
-        StackPane.setMargin(helpText, new Insets(0, 10, 0, 0));
-        
-        hb.getChildren().add(stack);
-        HBox.setHgrow(stack, Priority.ALWAYS);
-
-        final Boolean[] flag = {false};
-        stack.setOnMouseClicked((MouseEvent t)->{
-            if (!flag[0]){
-                helpText.setText("Producer: Xinran     !");
-                flag[0] = true;
-            } else {
-                helpText.setText("?");
-                flag[0] = false;
-            }
-        });
-                
-    }
- 
-
-    private GridPane addGridPane() {
- 
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(10, 20, 0, 10));
-
-        Text category = new Text("User："+studentEntity.getName());
-        category.setFont(Font.font( 20));
-        grid.setMargin(category,new Insets(10,0,0,0));
-        grid.add(category, 1,0);
-
-        Text school = new Text("School："+studentEntity.getUniversity());
-        school.setFont(Font.font(20));
-        grid.add(school, 1, 1);
-
-
-        TextField startCity = new TextField();
-        startCity.setPromptText("Departure");
-        grid.setMargin(startCity,new Insets(10,0,0,0));
-        GridPane.setConstraints(startCity, 1, 2);
-        grid.getChildren().add(startCity);
-
-        TextField endCity = new TextField();
-        endCity.setPromptText("Destination");
-        grid.setMargin(endCity,new Insets(5,0,10,0));
-        GridPane.setConstraints(endCity, 1, 3);
-        grid.getChildren().add(endCity);
-
-
-        Text tip1 = new Text("You can choose");
-        tip1.setFont(Font.font("Arial", 12));
-        tip1.setFill(Color.web("#A2A2A2"));
-        grid.add(tip1,1,4);
-
-        Button searchTicket = new Button();
-        searchTicket.setText("Search Tickets");
-        searchTicket.getStyleClass().add("button1");
-        grid.setMargin(searchTicket,new Insets(0,0,10,0));
-        grid.add(searchTicket,1,5);
-
-        Text tip2 = new Text("Or");
-        tip2.setFont(Font.font("Arial", FontWeight.BOLD, 12));
-        tip2.setFill(Color.web("#A2A2A2"));
-        grid.add(tip2,1,6);
-
-        Button searchOrders = new Button();
-        searchOrders.setText("View Order");
-        searchOrders.getStyleClass().add("button2");
-        grid.add(searchOrders,1,7);
-
-
-
-        searchTicket.setOnMouseClicked((MouseEvent t)->{
-
-            submit.setVisible(true);
-            cancel.setVisible(false);
-
-            data1.clear();
-            String mStartCity = startCity.getText();
-            String mEndPlace = endCity.getText();
-            if (mStartCity == null || mStartCity.equals(" ") || mStartCity.equals("")){
-                mStartCity = mStart;
-            }else{
-                System.out.println("mStartPlace : "+mStartCity );
-            }
-            if (mEndPlace == null || mEndPlace.equals(" ") || mEndPlace.equals("")){
-                mEndPlace = mEnd;
-            }
-            label.setText(mStartCity+" ——> "+mEndPlace);
-            DBHelper dbHelper = new DBHelper();
-            String sqlstr = "SELECT * FROM Train_Info WHERE station_name = '"+mStartCity+"'";
-            dbHelper.executeSQL(sqlstr);
-            ResultSet resultSet = dbHelper.getResultSet();
-            try {
-                while (resultSet.next()){
-                    String mTrainName = resultSet.getString("train_name");
-                    int num = resultSet.getInt("num");
-                    String mStartTime = resultSet.getString("start_time");
-                    float mStartFare = resultSet.getFloat("fare");
-                    String sqlstr1 = "SELECT * FROM Train_Info WHERE station_name = '"+mEndPlace+"' AND train_name = '"+mTrainName+"'";
-                    DBHelper dbHelper1 = new DBHelper();
-                    dbHelper1.executeSQL(sqlstr1);
-                    ResultSet resultSet1 = dbHelper1.getResultSet();
-                    while(resultSet1.next()){
-                        int endNum = resultSet1.getInt("num");
-                        if (endNum > num) {
-                            String ticketType;
-                            if (studentEntity.getAddress().contains(mEndPlace)){
-                                ticketType = "Student Ticket";
-                            } else{
-                                ticketType = "Adult Ticket";
+                        // 计算余票
+                        int availableSeats = 300; // 初始座位数
+                        for (OrdersEntity order : allOrders) {
+                            if (order.getTrainName().equals(ticket.getTrainName()) &&
+                                    order.getStartPlace().equals(departure) &&
+                                    order.getEndPlace().equals(destination)) {
+                                availableSeats = Math.min(availableSeats, order.getRemainTickets());
                             }
-                            float mEndFare = resultSet1.getFloat("fare");
-
-
-                            String trainName = resultSet1.getString("train_name");
-                            String sqlstr2 = "SELECT * from Orders WHERE ( train_name = '"+trainName+"'AND start_place = '"+mStartCity+"' AND end_place = '"+mEndPlace+"')";
-                            DBHelper dbHelper2 = new DBHelper();
-                            dbHelper2.executeSQL(sqlstr2);
-                            ResultSet resultSet2 = dbHelper2.getResultSet();
-                            int remainTickets = 300;
-                            while (resultSet2.next()){
-                                int remain = resultSet2.getInt("remain_tickets");
-                                if (remainTickets > remain){
-                                    remainTickets = remain;
-                                }
-                            }
-
-                            System.out.println(mStartCity+"-->"+mEndPlace);
-                            TicketInfoEntity ticketInfoEntity = new TicketInfoEntity();
-                            ticketInfoEntity.setTrainName(trainName);
-                            ticketInfoEntity.setStartPlace(mStartCity);
-                            ticketInfoEntity.setEndPlace(mEndPlace);
-                            ticketInfoEntity.setStartTime(mStartTime);
-                            ticketInfoEntity.setEndTime(resultSet1.getString("arrive_time"));
-                            ticketInfoEntity.setTicketType(ticketType);
-                            ticketInfoEntity.setFare(mEndFare-mStartFare+13.5f);
-                            ticketInfoEntity.setRemainTickets(remainTickets);
-                            ticketInfoEntity.setIsSelected(false);
-
-                            data1.add(ticketInfoEntity);
-                            tableView.setItems(data1);
-                            System.out.println("data1.size: "+data1.size()+data1.get(0).getStartTime());
-//                            createTableViewRow(ticketInfoEntity);
-
                         }
+                        ticket.setRemainTickets(availableSeats);
+
+                        ticketData.add(ticket);
                     }
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
             }
-        });
-
-        final Boolean[] firstTime = {true};
-
-        searchOrders.setOnMouseClicked((MouseEvent t)->{
-            data1.clear();
-//            if (firstTime[0]){
-                String sqlstr = "SELECT * FROM Orders WHERE name = '"+studentEntity.getName()+"'";
-                DBHelper dbHelper = new DBHelper();
-                dbHelper.executeSQL(sqlstr);
-                ResultSet resultSet = dbHelper.getResultSet();
-                try {
-                    while (resultSet.next()){
-                        TicketInfoEntity ticketInfoEntity = new TicketInfoEntity();
-                        ticketInfoEntity.setRemainTickets(resultSet.getInt("remain_tickets"));
-                        ticketInfoEntity.setIsSelected(false);
-                        ticketInfoEntity.setFare(resultSet.getFloat("fare"));
-                        ticketInfoEntity.setEndPlace(resultSet.getString("end_place"));
-                        ticketInfoEntity.setEndTime(resultSet.getString("end_time"));
-                        ticketInfoEntity.setStartPlace(resultSet.getString("start_place"));
-                        ticketInfoEntity.setStartTime(resultSet.getString("start_time"));
-                        ticketInfoEntity.setTicketType(resultSet.getString("ticket_type"));
-                        ticketInfoEntity.setTrainName(resultSet.getString("train_name"));
-//                        saveInfo.add(ticketInfoEntity);
-
-                        data1.add(ticketInfoEntity);
-                        tableView.setItems(data1);
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-//            }else{
-//                for (int i = 0; i < saveInfo.size(); i++) {
-//                    data1.add(saveInfo.get(i));
-//                }
-//            }
-//            firstTime[0] = false;
-
-            submit.setVisible(false);
-            cancel.setVisible(true);
-        });
-        return grid;
+        }
     }
 
+    private void loadUserOrders() {
+        ticketData.clear();
+        List<OrdersEntity> userOrders = DBHelper.getOrdersByName(studentEntity.getName());
 
-    private AnchorPane addAnchorPane(GridPane grid) {
- 
-        AnchorPane anchorpane = new AnchorPane();
+        for (OrdersEntity order : userOrders) {
+            TicketInfoEntity ticket = new TicketInfoEntity();
+            ticket.setOrderNum(order.getOrderNum());
+            ticket.setTrainName(order.getTrainName());
+            ticket.setStartPlace(order.getStartPlace());
+            ticket.setEndPlace(order.getEndPlace());
+            ticket.setStartTime(order.getStartTime());
+            ticket.setEndTime(order.getEndTime());
+            ticket.setTicketType(order.getTicketType());
+            ticket.setRemainTickets(order.getRemainTickets());
+            ticket.setFare(order.getFare());
+            ticketData.add(ticket);
+        }
+    }
 
-        HBox hb = new HBox();
-        hb.setPadding(new Insets(0, 10, 10, 10));
-        hb.setSpacing(10);
+    private void bookSelectedTickets() {
+        for (TicketInfoEntity ticket : ticketData) {
+            if (ticket.getIsIsSelected()) {
+                // 创建订单
+                OrdersEntity order = new OrdersEntity();
+                order.setOrderNum(generateOrderNumber());
+                order.setName(studentEntity.getName());
+                order.setTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                order.setIspaid("否");
+                order.setTrainName(ticket.getTrainName());
+                order.setStartPlace(ticket.getStartPlace());
+                order.setEndPlace(ticket.getEndPlace());
+                order.setStartTime(ticket.getStartTime());
+                order.setEndTime(ticket.getEndTime());
+                order.setTicketType(ticket.getTicketType());
+                order.setRemainTickets(ticket.getRemainTickets() - 1);
+                order.setFare(ticket.getFare());
 
-        anchorpane.getChildren().addAll(grid,hb);
-        AnchorPane.setBottomAnchor(hb, 8.0);
-        AnchorPane.setRightAnchor(hb, 5.0);
-        AnchorPane.setTopAnchor(grid, 10.0);
- 
-        return anchorpane;
+                // 保存订单
+                DBHelper.addOrder(order);
+
+                // 更新余票
+                ticket.setRemainTickets(order.getRemainTickets());
+            }
+        }
+        tableView.refresh();
+    }
+
+    private void cancelSelectedTickets() {
+        List<TicketInfoEntity> toRemove = new ArrayList<>();
+        for (TicketInfoEntity ticket : ticketData) {
+            if (ticket.getIsIsSelected() && ticket.getOrderNum() != null) {
+                DBHelper.removeOrder(ticket.getOrderNum());
+                toRemove.add(ticket);
+            }
+        }
+        ticketData.removeAll(toRemove);
+    }
+
+    private String generateOrderNumber() {
+        return "ORD" + System.currentTimeMillis();
     }
 }

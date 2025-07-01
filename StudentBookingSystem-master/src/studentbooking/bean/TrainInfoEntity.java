@@ -8,8 +8,7 @@ import javax.persistence.Table;
 /**
  * Created by leiyang on 2016/11/28.
  */
-@Entity
-@Table(name = "Train_Info", schema = "dbo", catalog = "Ticket")
+
 public class TrainInfoEntity {
     private String trainName;
     private String stationName;
@@ -19,8 +18,7 @@ public class TrainInfoEntity {
     private int num;
     private float fare;
 
-    @Basic
-    @Column(name = "train_name")
+
     public String getTrainName() {
         return trainName;
     }
@@ -29,8 +27,6 @@ public class TrainInfoEntity {
         this.trainName = trainName;
     }
 
-    @Basic
-    @Column(name = "station_name")
     public String getStationName() {
         return stationName;
     }
@@ -39,8 +35,6 @@ public class TrainInfoEntity {
         this.stationName = stationName;
     }
 
-    @Basic
-    @Column(name = "arrive_time")
     public String getArriveTime() {
         return arriveTime;
     }
@@ -49,8 +43,6 @@ public class TrainInfoEntity {
         this.arriveTime = arriveTime;
     }
 
-    @Basic
-    @Column(name = "start_time")
     public String getStartTime() {
         return startTime;
     }
@@ -59,8 +51,6 @@ public class TrainInfoEntity {
         this.startTime = startTime;
     }
 
-    @Basic
-    @Column(name = "stay_time")
     public String getStayTime() {
         return stayTime;
     }
@@ -69,8 +59,6 @@ public class TrainInfoEntity {
         this.stayTime = stayTime;
     }
 
-    @Basic
-    @Column(name = "num")
     public int getNum() {
         return num;
     }
@@ -79,8 +67,6 @@ public class TrainInfoEntity {
         this.num = num;
     }
 
-    @Basic
-    @Column(name = "fare")
     public float getFare() {
         return fare;
     }
@@ -89,7 +75,6 @@ public class TrainInfoEntity {
         this.fare = fare;
     }
 
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -107,7 +92,6 @@ public class TrainInfoEntity {
         return true;
     }
 
-    @Override
     public int hashCode() {
         int result = trainName != null ? trainName.hashCode() : 0;
         result = 31 * result + (stationName != null ? stationName.hashCode() : 0);

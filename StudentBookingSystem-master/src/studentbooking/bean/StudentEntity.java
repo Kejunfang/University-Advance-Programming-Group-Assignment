@@ -8,8 +8,6 @@ import javax.persistence.Table;
 /**
  * Created by leiyang on 2016/11/27.
  */
-@Entity
-@Table(name = "Student", schema = "dbo", catalog = "Ticket")
 public class StudentEntity {
     private String name;
     private String sex;
@@ -22,8 +20,6 @@ public class StudentEntity {
     private String phoneNum;
     private String address;
 
-    @Basic
-    @Column(name = "name")
     public String getName() {
         return name;
     }
@@ -32,8 +28,6 @@ public class StudentEntity {
         this.name = name;
     }
 
-    @Basic
-    @Column(name = "sex")
     public String getSex() {
         return sex;
     }
@@ -42,8 +36,6 @@ public class StudentEntity {
         this.sex = sex;
     }
 
-    @Basic
-    @Column(name = "password")
     public String getPassword() {
         return password;
     }
@@ -52,8 +44,6 @@ public class StudentEntity {
         this.password = password;
     }
 
-    @Basic
-    @Column(name = "age")
     public int getAge() {
         return age;
     }
@@ -62,8 +52,6 @@ public class StudentEntity {
         this.age = age;
     }
 
-    @Basic
-    @Column(name = "student_id")
     public String getStudentId() {
         return studentId;
     }
@@ -72,8 +60,6 @@ public class StudentEntity {
         this.studentId = studentId;
     }
 
-    @Basic
-    @Column(name = "university")
     public String getUniversity() {
         return university;
     }
@@ -82,8 +68,6 @@ public class StudentEntity {
         this.university = university;
     }
 
-    @Basic
-    @Column(name = "faculty")
     public String getFaculty() {
         return faculty;
     }
@@ -92,8 +76,6 @@ public class StudentEntity {
         this.faculty = faculty;
     }
 
-    @Basic
-    @Column(name = "profession")
     public String getProfession() {
         return profession;
     }
@@ -102,8 +84,6 @@ public class StudentEntity {
         this.profession = profession;
     }
 
-    @Basic
-    @Column(name = "phone_num")
     public String getPhoneNum() {
         return phoneNum;
     }
@@ -112,8 +92,6 @@ public class StudentEntity {
         this.phoneNum = phoneNum;
     }
 
-    @Basic
-    @Column(name = "address")
     public String getAddress() {
         return address;
     }
@@ -122,7 +100,6 @@ public class StudentEntity {
         this.address = address;
     }
 
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -143,7 +120,6 @@ public class StudentEntity {
         return true;
     }
 
-    @Override
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (sex != null ? sex.hashCode() : 0);

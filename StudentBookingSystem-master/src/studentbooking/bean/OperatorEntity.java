@@ -5,8 +5,7 @@ import javax.persistence.*;
 /**
  * Created by leiyang on 2016/11/27.
  */
-@Entity
-@Table(name = "Operator", schema = "dbo", catalog = "Ticket")
+
 public class OperatorEntity {
     private int account;
     private String password;
@@ -14,8 +13,7 @@ public class OperatorEntity {
     private String sex;
     private String phoneNum;
 
-    @Id
-    @Column(name = "account")
+
     public int getAccount() {
         return account;
     }
@@ -24,8 +22,7 @@ public class OperatorEntity {
         this.account = account;
     }
 
-    @Basic
-    @Column(name = "password")
+
     public String getPassword() {
         return password;
     }
@@ -34,8 +31,6 @@ public class OperatorEntity {
         this.password = password;
     }
 
-    @Basic
-    @Column(name = "name")
     public String getName() {
         return name;
     }
@@ -44,8 +39,6 @@ public class OperatorEntity {
         this.name = name;
     }
 
-    @Basic
-    @Column(name = "sex")
     public String getSex() {
         return sex;
     }
@@ -54,8 +47,6 @@ public class OperatorEntity {
         this.sex = sex;
     }
 
-    @Basic
-    @Column(name = "phone_num")
     public String getPhoneNum() {
         return phoneNum;
     }
@@ -64,7 +55,6 @@ public class OperatorEntity {
         this.phoneNum = phoneNum;
     }
 
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -80,7 +70,6 @@ public class OperatorEntity {
         return true;
     }
 
-    @Override
     public int hashCode() {
         int result = account;
         result = 31 * result + (password != null ? password.hashCode() : 0);

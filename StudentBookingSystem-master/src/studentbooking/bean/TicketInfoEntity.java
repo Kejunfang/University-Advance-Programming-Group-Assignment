@@ -10,8 +10,7 @@ import javax.persistence.Table;
 /**
  * Created by leiyang on 2016/11/27.
  */
-@Entity
-@Table(name = "Ticket_Info", schema = "dbo", catalog = "Ticket")
+
 public class TicketInfoEntity {
     private SimpleBooleanProperty isSelected = new SimpleBooleanProperty();	//是否选中
     private String trainName;
@@ -22,6 +21,15 @@ public class TicketInfoEntity {
     private String startTime;
     private String endTime;
     private float fare;
+    private String orderNum;
+
+    public String getOrderNum() {
+        return orderNum;
+    }
+
+    public void setOrderNum(String orderNum) {
+        this.orderNum = orderNum;
+    }
 
     public boolean getIsIsSelected() {
         return isSelected.get();
@@ -35,8 +43,6 @@ public class TicketInfoEntity {
         this.isSelected.set(isSelected);
     }
 
-    @Basic
-    @Column(name = "train_name")
     public String getTrainName() {
         return trainName;
     }
@@ -45,8 +51,6 @@ public class TicketInfoEntity {
         this.trainName = trainName;
     }
 
-    @Basic
-    @Column(name = "start_place")
     public String getStartPlace() {
         return startPlace;
     }
@@ -55,8 +59,6 @@ public class TicketInfoEntity {
         this.startPlace = startPlace;
     }
 
-    @Basic
-    @Column(name = "end_place")
     public String getEndPlace() {
         return endPlace;
     }
@@ -65,8 +67,6 @@ public class TicketInfoEntity {
         this.endPlace = endPlace;
     }
 
-    @Basic
-    @Column(name = "remain_tickets")
     public int getRemainTickets() {
         return remainTickets;
     }
@@ -75,8 +75,6 @@ public class TicketInfoEntity {
         this.remainTickets = remainTickets;
     }
 
-    @Basic
-    @Column(name = "ticket_type")
     public String getTicketType() {
         return ticketType;
     }
@@ -85,8 +83,6 @@ public class TicketInfoEntity {
         this.ticketType = ticketType;
     }
 
-    @Basic
-    @Column(name = "start_time")
     public String getStartTime() {
         return startTime;
     }
@@ -95,8 +91,6 @@ public class TicketInfoEntity {
         this.startTime = startTime;
     }
 
-    @Basic
-    @Column(name = "end_time")
     public String getEndTime() {
         return endTime;
     }
@@ -105,7 +99,6 @@ public class TicketInfoEntity {
         this.endTime = endTime;
     }
 
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -123,7 +116,6 @@ public class TicketInfoEntity {
         return true;
     }
 
-    @Override
     public int hashCode() {
         int result = trainName != null ? trainName.hashCode() : 0;
         result = 31 * result + (startPlace != null ? startPlace.hashCode() : 0);
@@ -135,8 +127,6 @@ public class TicketInfoEntity {
         return result;
     }
 
-    @Basic
-    @Column(name = "fare")
     public float getFare() {
         return fare;
     }
