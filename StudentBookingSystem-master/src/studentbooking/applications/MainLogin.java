@@ -61,7 +61,7 @@ public class MainLogin extends Application {
         Label roleLabel = new Label("Login As:");
         grid.add(roleLabel, 0, 4);
 
-        ChoiceBox<String> choiceBox = new ChoiceBox<>(FXCollections.observableArrayList("User", "Admin"));
+        ChoiceBox<String> choiceBox = new ChoiceBox<>(FXCollections.observableArrayList("User", "Operator"));
         choiceBox.setValue("User");
         grid.add(choiceBox, 1, 4);
 
