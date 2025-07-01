@@ -1,0 +1,2 @@
+20230701120001,John Doe,2023-07-01 12:00:00,否,Express100,New York,Boston,08:00,12:00,Adult Ticket,50,89.99
+20230701120002,Jane Smith,2023-07-01 12:05:00,否,Express200,Boston,New York,09:00,13:00,Student Ticket,45,75.50

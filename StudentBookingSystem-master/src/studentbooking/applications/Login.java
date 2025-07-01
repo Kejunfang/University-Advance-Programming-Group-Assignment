@@ -1,4 +1,3 @@
-
 package studentbooking.applications;
 
 import studentbooking.db.DBHelper;
@@ -20,11 +19,8 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 import static javafx.geometry.HPos.LEFT;
-
 
 public class Login extends Application {
 
@@ -60,7 +56,6 @@ public class Login extends Application {
         choiceBox.setValue("User");
         grid.add(choiceBox,1,4);
 
-
         Button btn = new Button("  Login  ");
         btn.getStyleClass().add("button5");
         HBox hbBtn = new HBox(10);
@@ -77,104 +72,46 @@ public class Login extends Application {
         btn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
-
-                String account = userTextField.getText().toString();
-                String password = pwBox.getText().toString();
+                String account = userTextField.getText().trim();
+                String password = pwBox.getText().trim();
                 String choice = choiceBox.getValue().toString();
-                System.out.println(choice);
-                DBHelper dbHelper = new DBHelper();
 
-                if (choice.equals("User")){
-
-                    dbHelper.executeSQL("SELECT * FROM Student where(name='"+account+"' and password='"+password+"')");
-                    ResultSet resultSet = dbHelper.getResultSet();
-                    DBHelper dbHelper1 = new DBHelper();
-                    dbHelper1.executeSQL("SELECT * FROM Student where(name='"+account+"' and password='"+password+"')");
-                    ResultSet resultSet1 = dbHelper1.getResultSet();
-                    try {
-                        if (!resultSet1.next()){
-                            actiontarget.setFill(Color.FIREBRICK);
-                            actiontarget.setText("    Incorrect account number or password！");
-                            return;
-                        }
-                    } catch (SQLException e1) {
-                        e1.printStackTrace();
+                if (choice.equals("User")) {
+                    StudentEntity studentEntity = DBHelper.findStudent(account, password);
+                    if (studentEntity == null) {
+                        actiontarget.setFill(Color.FIREBRICK);
+                        actiontarget.setText("    Incorrect account number or password！");
+                        return;
                     }
-                    StudentEntity studentEntity = new StudentEntity();
+
                     try {
-                        while (resultSet.next()){
-                            System.out.println(resultSet.getString("address"));
-
-                            studentEntity.setAddress(resultSet.getString("address"));
-                            studentEntity.setAge(resultSet.getInt("age"));
-                            studentEntity.setFaculty(resultSet.getString("faculty"));
-                            studentEntity.setName(resultSet.getString("name"));
-                            studentEntity.setPassword(resultSet.getString("password"));
-                            studentEntity.setPhoneNum(resultSet.getString("phone_num"));
-                            studentEntity.setProfession(resultSet.getString("profession"));
-                            studentEntity.setSex(resultSet.getString("sex"));
-                            studentEntity.setStudentId(resultSet.getString("student_id"));
-                            studentEntity.setUniversity(resultSet.getString("university"));
-
-                            System.out.println(studentEntity.getPhoneNum());
-                        }
-
-
                         primaryStage.close();
-
-                        newState(primaryStage,studentEntity);
-
-                    } catch (SQLException e1) {
-                        e1.printStackTrace();
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
+                        newState(primaryStage, studentEntity);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                } else if (choice.equals("Admin")) {
+                    OperatorEntity operatorEntity = DBHelper.findOperator(account, password);
+                    if (operatorEntity == null) {
+                        actiontarget.setFill(Color.FIREBRICK);
+                        actiontarget.setText("    Incorrect work number or password！");
+                        return;
                     }
 
-                }else if (choice.equals("Admin")){
-                    dbHelper.executeSQL("SELECT * FROM Operator where(account='"+account+"' and password='"+password+"')");
-                    ResultSet resultSet = dbHelper.getResultSet();
-                    DBHelper dbHelper1 = new DBHelper();
-                    dbHelper1.executeSQL("SELECT * FROM Operator where(account='"+account+"' and password='"+password+"')");
-                    ResultSet resultSet1 = dbHelper1.getResultSet();
                     try {
-                        if (!resultSet1.next()){
-                            actiontarget.setFill(Color.FIREBRICK);
-                            actiontarget.setText("    Incorrect work number or password！");
-                            return;
-                        }
-                    } catch (SQLException e1) {
-                        e1.printStackTrace();
-                    }
-                    OperatorEntity operatorEntity = new OperatorEntity();
-                    try {
-                        while (resultSet.next()){
-                            operatorEntity.setName(resultSet.getString("name"));
-                            operatorEntity.setPassword(resultSet.getString("password"));
-                            operatorEntity.setPhoneNum(resultSet.getString("phone_num"));
-                            operatorEntity.setSex(resultSet.getString("sex"));
-                            operatorEntity.setAccount(resultSet.getInt("account"));
-                        }
-
                         primaryStage.close();
-
-                        newOperatorState(primaryStage,operatorEntity);
-
-                    } catch (SQLException e1) {
-                        e1.printStackTrace();
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
+                        newOperatorState(primaryStage, operatorEntity);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
                     }
                 }
             }
-
         });
 
         Scene scene = new Scene(grid, 350, 290);
         scene.getStylesheets().add("studentbooking/css/button.css");
         primaryStage.setScene(scene);
         primaryStage.show();
-
-
     }
 
     private void newOperatorState(Stage primaryStage, OperatorEntity operatorEntity) throws IOException {
@@ -182,14 +119,7 @@ public class Login extends Application {
         selectTicketForOperator.start(primaryStage);
     }
 
-    public void newState(Stage primaryStage,StudentEntity studentEntity) throws IOException {
-
-//        primaryStage.setTitle("FXML TableView Example");
-//        Pane myPane = (Pane) FXMLLoader.load(getClass().getResource("fxml_tableview.fxml"));
-//        Scene myScene = new Scene(myPane);
-//        primaryStage.setScene(myScene);
-//        primaryStage.show();
-//        primaryStage.close();
+    public void newState(Stage primaryStage, StudentEntity studentEntity) throws IOException {
         SelectTicket selectTicket = new SelectTicket(studentEntity);
         selectTicket.start(primaryStage);
     }
@@ -197,5 +127,4 @@ public class Login extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-
 }

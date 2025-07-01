@@ -1,0 +1,2 @@
+1001,admin123,Admin User,Male,555-0001
+1002,op456,Operator Two,Female,555-0002

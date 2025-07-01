@@ -1,4 +1,3 @@
-
 package studentbooking.applications;
 
 import javafx.application.Application;
@@ -7,6 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.HPos; // 添加 HPos 的导入
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
@@ -17,8 +17,10 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import studentbooking.bean.OperatorEntity;
 import studentbooking.bean.StudentEntity;
+import studentbooking.db.DBHelper;
 
-import java.io.IOException;
+// 静态导入 HPos.LEFT
+import java.io.File;
 
 import static javafx.geometry.HPos.LEFT;
 
@@ -26,8 +28,14 @@ public class MainLogin extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("Train Ticket System - Mock Login");
 
+        System.out.println("正在初始化数据文件..."); // 调试输出
+        File ordersFile = new File("data/orders.txt");
+        System.out.println("orders.txt 是否存在: " + ordersFile.exists());
+        // 确保数据目录和文件存在
+        DBHelper.initializeDataFiles();
+
+        primaryStage.setTitle("Train Ticket System - Login");
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(10);
@@ -66,24 +74,25 @@ public class MainLogin extends Application {
         final Text actiontarget = new Text();
         grid.add(actiontarget, 0, 6);
         grid.setColumnSpan(actiontarget, 2);
-        grid.setHalignment(actiontarget, LEFT);
+        grid.setHalignment(actiontarget, LEFT); // 这里使用 LEFT
         actiontarget.setId("actiontarget");
 
         btn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
-                String account = userTextField.getText();
-                String password = pwBox.getText();
+                String account = userTextField.getText().trim();
+                String password = pwBox.getText().trim();
                 String choice = choiceBox.getValue();
 
                 if (choice.equals("User")) {
-                    if (account.equals("user1") && password.equals("123")) {
-                        StudentEntity student = new StudentEntity();
-                        student.setName("user1");
-                        student.setUniversity("Mock University");
+                    StudentEntity student = DBHelper.findStudent(account, password);
+                    if (student != null) {
                         try {
-                            new SelectTicket(student).start(primaryStage);
-                        } catch (IOException ex) {
+                            // 启动用户界面
+                            SelectTicket userApp = new SelectTicket(student);
+                            primaryStage.close();
+                            userApp.start(new Stage());
+                        } catch (Exception ex) {
                             ex.printStackTrace();
                         }
                     } else {
@@ -91,12 +100,14 @@ public class MainLogin extends Application {
                         actiontarget.setText("Invalid user credentials.");
                     }
                 } else if (choice.equals("Admin")) {
-                    if (account.equals("admin") && password.equals("admin123")) {
-                        OperatorEntity operator = new OperatorEntity();
-                        operator.setName("admin");
+                    OperatorEntity operator = DBHelper.findOperator(account, password);
+                    if (operator != null) {
                         try {
-                            new SelectTicketForOperator(operator).start(primaryStage);
-                        } catch (IOException ex) {
+                            // 启动管理员界面
+                            SelectTicketForOperator adminApp = new SelectTicketForOperator(operator);
+                            primaryStage.close();
+                            adminApp.start(new Stage());
+                        } catch (Exception ex) {
                             ex.printStackTrace();
                         }
                     } else {
@@ -108,7 +119,7 @@ public class MainLogin extends Application {
         });
 
         Scene scene = new Scene(grid, 380, 300);
-        scene.getStylesheets().add("studentbooking/css/button.css");
+        scene.getStylesheets().add(getClass().getResource("/studentbooking/css/button.css").toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();
     }
