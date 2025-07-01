@@ -3,7 +3,7 @@ package studentbooking.bean;
 import javax.persistence.*;
 
 /**
- * Created by leiyang on 2016/11/27.
+ * @ LiuXinran
  */
 
 public class OperatorEntity {

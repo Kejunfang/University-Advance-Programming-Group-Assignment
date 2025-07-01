@@ -31,31 +31,31 @@ public class SelectTicketForOperator extends Application {
 
     @Override
     public void start(Stage stage) {
-        // 创建主布局
+        // Creating a Master Layout
         BorderPane mainLayout = new BorderPane();
 
-        // 顶部标题
+        // top heading
         HBox header = createHeader();
         mainLayout.setTop(header);
 
-        // 左侧操作面板
+        // Left Operator Panel
         GridPane controlPanel = createControlPanel();
         mainLayout.setLeft(controlPanel);
 
-        // 中央订单表格
+        // Central Order Form
         setupOrderTable();
         mainLayout.setCenter(orderTable);
 
-        // 配置场景和舞台
+        // Configuring scenes and stages
         Scene scene = new Scene(mainLayout, 1200, 700);
         scene.getStylesheets().add(getClass().getResource("/studentbooking/css/button.css").toExternalForm());
         stage.setScene(scene);
         stage.setTitle("Operator Dashboard - Train Ticket System");
         stage.show();
 
-        // 加载所有订单
+        // Load All Orders
         loadAllOrders();
-        orderTable.refresh(); // 强制刷新表格
+        orderTable.refresh(); // Force Refresh Form
     }
 
     private HBox createHeader() {
@@ -78,7 +78,7 @@ public class SelectTicketForOperator extends Application {
         panel.setVgap(10);
         panel.setPadding(new Insets(10, 20, 0, 10));
 
-        // 操作员信息
+        // Operator Information
         Text operatorInfo = new Text("Operator: " + operatorEntity.getName());
         operatorInfo.setFont(Font.font(20));
         panel.add(operatorInfo, 1, 0);
@@ -87,12 +87,12 @@ public class SelectTicketForOperator extends Application {
         accountInfo.setFont(Font.font(20));
         panel.add(accountInfo, 1, 1);
 
-        // 搜索框
+        // search box
         TextField searchField = new TextField();
         searchField.setPromptText("Search by name");
         panel.add(searchField, 1, 3);
 
-        // 按钮
+        // buttons
         Button searchButton = new Button("Search");
         searchButton.getStyleClass().add("button1");
         panel.add(searchButton, 1, 4);
@@ -105,7 +105,7 @@ public class SelectTicketForOperator extends Application {
         cancelButton.getStyleClass().add("button3");
         panel.add(cancelButton, 1, 6);
 
-        // 按钮事件
+        // pushbutton event
         searchButton.setOnAction(e -> searchOrders(searchField.getText().trim()));
         showAllButton.setOnAction(e -> loadAllOrders());
         cancelButton.setOnAction(e -> cancelSelectedOrders());
@@ -116,7 +116,7 @@ public class SelectTicketForOperator extends Application {
     private void setupOrderTable() {
         orderTable.setEditable(true);
 
-        // 创建列
+        // Creating Columns
         TableColumn<OrdersEntity, String> orderNumCol = new TableColumn<>("Order #");
         orderNumCol.setCellValueFactory(new PropertyValueFactory<>("orderNum"));
 
@@ -153,7 +153,7 @@ public class SelectTicketForOperator extends Application {
 
 
 
-        // 添加列到表格
+        // Adding columns to a table
         orderTable.getColumns().addAll(
                 orderNumCol, nameCol, timeCol, trainCol, routeCol,
                 departCol, arriveCol, typeCol, seatsCol, priceCol

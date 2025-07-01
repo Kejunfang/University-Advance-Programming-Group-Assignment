@@ -1,6 +1,6 @@
 package studentbooking.applications;
 
-// 添加缺失的导入
+
 import javafx.geometry.Pos;
 import studentbooking.db.DBHelper;
 import studentbooking.bean.OrdersEntity;
@@ -50,22 +50,22 @@ public class SelectTicket extends Application {
 
     @Override
     public void start(Stage stage) {
-        // 创建主布局
+        // Creating a Master Layout
         BorderPane mainLayout = new BorderPane();
 
-        // 顶部标题
+        // top heading
         HBox header = createHeader();
         mainLayout.setTop(header);
 
-        // 左侧用户面板
+        // Left User Panel
         GridPane userPanel = createUserPanel();
         mainLayout.setLeft(userPanel);
 
-        // 中央内容区域
+        // Central content area
         GridPane centerPanel = createCenterPanel();
         mainLayout.setCenter(centerPanel);
 
-        // 配置场景和舞台
+        // Configuring scenes and stages
         Scene scene = new Scene(mainLayout, 1000, 700);
         scene.getStylesheets().add(getClass().getResource("/studentbooking/css/button.css").toExternalForm());
         stage.setScene(scene);
@@ -97,7 +97,7 @@ public class SelectTicket extends Application {
         userPanel.setVgap(10);
         userPanel.setPadding(new Insets(10, 20, 0, 10));
 
-        // 用户信息
+        // user information
         Text userInfo = new Text("User: " + studentEntity.getName());
         userInfo.setFont(Font.font(20));
         userPanel.add(userInfo, 1, 0);
@@ -106,7 +106,7 @@ public class SelectTicket extends Application {
         universityInfo.setFont(Font.font(20));
         userPanel.add(universityInfo, 1, 1);
 
-        // 搜索框
+        // search box
         TextField departureField = new TextField();
         departureField.setPromptText("Departure");
         userPanel.add(departureField, 1, 2);
@@ -115,7 +115,7 @@ public class SelectTicket extends Application {
         destinationField.setPromptText("Destination");
         userPanel.add(destinationField, 1, 3);
 
-        // 按钮
+        // buttons
         Button searchButton = new Button("Search Tickets");
         searchButton.getStyleClass().add("button1");
         userPanel.add(searchButton, 1, 5);
@@ -124,7 +124,7 @@ public class SelectTicket extends Application {
         viewOrdersButton.getStyleClass().add("button2");
         userPanel.add(viewOrdersButton, 1, 7);
 
-        // 按钮事件处理
+        // Button Event Handling
         searchButton.setOnAction(e -> {
             String departure = departureField.getText().trim();
             String destination = destinationField.getText().trim();
@@ -150,11 +150,11 @@ public class SelectTicket extends Application {
         centerPanel.setVgap(10);
         centerPanel.setPadding(new Insets(10));
 
-        // 路线标签
+        // route label
         routeLabel.getStyleClass().add("label1");
         centerPanel.add(routeLabel, 0, 0);
 
-        // 操作按钮
+        // Operation buttons
         Button bookButton = new Button("Book Selected");
         bookButton.getStyleClass().add("button3");
         centerPanel.add(bookButton, 1, 0);
@@ -163,11 +163,11 @@ public class SelectTicket extends Application {
         cancelButton.getStyleClass().add("button3");
         centerPanel.add(cancelButton, 2, 0);
 
-        // 车票表格
+        // Ticket Form
         setupTicketTable();
         centerPanel.add(tableView, 0, 1, 3, 1);
 
-        // 按钮事件
+        // button event
         bookButton.setOnAction(e -> bookSelectedTickets());
         cancelButton.setOnAction(e -> cancelSelectedTickets());
 
@@ -177,7 +177,7 @@ public class SelectTicket extends Application {
     private void setupTicketTable() {
         tableView.setEditable(true);
 
-        // 创建列
+        // Creating Columns
         TableColumn<TicketInfoEntity, String> trainCol = new TableColumn<>("Train");
         trainCol.setCellValueFactory(new PropertyValueFactory<>("trainName"));
 
@@ -202,7 +202,7 @@ public class SelectTicket extends Application {
         TableColumn<TicketInfoEntity, Double> priceCol = new TableColumn<>("Price");
         priceCol.setCellValueFactory(new PropertyValueFactory<>("fare"));
 
-        // 添加列到表格
+        // Adding columns to a table
         tableView.getColumns().addAll(trainCol, fromCol, toCol, departCol, arriveCol, typeCol, seatsCol, priceCol);
         tableView.setItems(ticketData);
     }
@@ -227,16 +227,16 @@ public class SelectTicket extends Application {
                         ticket.setStartTime(departureInfo.getStartTime());
                         ticket.setEndTime(arrivalInfo.getArriveTime());
 
-                        // 确定票型
+                        // Determine the type of ticket
                         ticket.setTicketType(studentEntity.getAddress().contains(destination) ?
                                 "Student Ticket" : "Adult Ticket");
 
-                        // 计算价格
+                        // Calculate price
                         float price = arrivalInfo.getFare() - departureInfo.getFare() + 13.5f;
                         ticket.setFare(price);
 
-                        // 计算余票
-                        int availableSeats = 300; // 初始座位数
+                        // Calculation of remaining tickets
+                        int availableSeats = 300; // Initial seating capacity
                         for (OrdersEntity order : allOrders) {
                             if (order.getTrainName().equals(ticket.getTrainName()) &&
                                     order.getStartPlace().equals(departure) &&
@@ -275,12 +275,12 @@ public class SelectTicket extends Application {
     private void bookSelectedTickets() {
         for (TicketInfoEntity ticket : ticketData) {
             if (ticket.getIsIsSelected()) {
-                // 创建订单
+                // Create an order
                 OrdersEntity order = new OrdersEntity();
                 order.setOrderNum(generateOrderNumber());
                 order.setName(studentEntity.getName());
                 order.setTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                order.setIspaid("否");
+                order.setIspaid("No");
                 order.setTrainName(ticket.getTrainName());
                 order.setStartPlace(ticket.getStartPlace());
                 order.setEndPlace(ticket.getEndPlace());
@@ -290,10 +290,10 @@ public class SelectTicket extends Application {
                 order.setRemainTickets(ticket.getRemainTickets() - 1);
                 order.setFare(ticket.getFare());
 
-                // 保存订单
+                // Save Order
                 DBHelper.addOrder(order);
 
-                // 更新余票
+                // Updated Remaining Tickets
                 ticket.setRemainTickets(order.getRemainTickets());
             }
         }

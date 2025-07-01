@@ -5,7 +5,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javax.persistence.*;
 
 /**
- * Created by leiyang on 2016/12/1.
+ * @ LiuXinran
  */
 
 public class OrdersEntity {

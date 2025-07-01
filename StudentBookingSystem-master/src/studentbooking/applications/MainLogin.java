@@ -29,10 +29,10 @@ public class MainLogin extends Application {
     @Override
     public void start(Stage primaryStage) {
         DBHelper.resetOperatorFile();
-        System.out.println("正在初始化数据文件..."); // 调试输出
+        System.out.println("Initializing data files..."); // 调试输出
         File ordersFile = new File("data/orders.txt");
-        System.out.println("orders.txt 是否存在: " + ordersFile.exists());
-        // 确保数据目录和文件存在
+        System.out.println("orders.txt whether it exists: " + ordersFile.exists());
+        // Ensure that data directories and files exist
         DBHelper.initializeDataFiles();
 
         primaryStage.setTitle("Train Ticket System - Login");
@@ -61,7 +61,7 @@ public class MainLogin extends Application {
         Label roleLabel = new Label("Login As:");
         grid.add(roleLabel, 0, 4);
 
-        ChoiceBox<String> choiceBox = new ChoiceBox<>(FXCollections.observableArrayList("User", "Admin"));
+        ChoiceBox<String> choiceBox = new ChoiceBox<>(FXCollections.observableArrayList("User", "Operator"));
         choiceBox.setValue("User");
         grid.add(choiceBox, 1, 4);
 
@@ -74,7 +74,7 @@ public class MainLogin extends Application {
         final Text actiontarget = new Text();
         grid.add(actiontarget, 0, 6);
         grid.setColumnSpan(actiontarget, 2);
-        grid.setHalignment(actiontarget, LEFT); // 这里使用 LEFT
+        grid.setHalignment(actiontarget, LEFT); // LEFT is used here
         actiontarget.setId("actiontarget");
 
         btn.setOnAction(new EventHandler<ActionEvent>() {
@@ -88,7 +88,7 @@ public class MainLogin extends Application {
                     StudentEntity student = DBHelper.findStudent(account, password);
                     if (student != null) {
                         try {
-                            // 启动用户界面
+                            // Launching the User Interface
                             SelectTicket userApp = new SelectTicket(student);
                             primaryStage.close();
                             userApp.start(new Stage());
@@ -99,11 +99,11 @@ public class MainLogin extends Application {
                         actiontarget.setFill(Color.FIREBRICK);
                         actiontarget.setText("Invalid user credentials.");
                     }
-                } else if (choice.equals("Admin")) {
+                } else if (choice.equals("Operator")) {
                     OperatorEntity operator = DBHelper.findOperator(account, password);
                     if (operator != null) {
                         try {
-                            // 启动管理员界面
+                            // Launching the Administrator Interface
                             SelectTicketForOperator adminApp = new SelectTicketForOperator(operator);
                             primaryStage.close();
                             adminApp.start(new Stage());
