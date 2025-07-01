@@ -34,8 +34,13 @@ public class DBHelper {
         }
 
         if (isFileEmpty(OPERATOR_FILE)) {
-            appendRecord(OPERATOR_FILE, "1001,admin123,Admin User,Male,555-0001");
-            appendRecord(OPERATOR_FILE, "1002,op456,Operator Two,Female,555-0002");
+            // 使用覆盖模式写入新文件
+            List<String> operatorData = new ArrayList<>();
+            operatorData.add("1001,admin123,Admin User,Male,555-0001");
+            operatorData.add("1002,op456,Operator Two,Female,555-0002");
+            operatorData.add("1003,abc,Operator Three,Male,555-0003");
+            writeAllRecords(OPERATOR_FILE, operatorData);
+            System.out.println("操作员文件已重新初始化");
         }
 
         if (isFileEmpty(TRAIN_INFO_FILE)) {
@@ -85,8 +90,15 @@ public class DBHelper {
                 new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8))) {
             String line;
             while ((line = br.readLine()) != null) {
-                if (line.trim().isEmpty()) continue;
-                records.add(line.split(","));
+                line = line.trim();
+                if (line.isEmpty()) continue; // 跳过空行
+
+                String[] fields = line.split(",");
+                if (fields.length < 2) { // 确保有足够字段
+                    System.out.println("跳过无效记录: " + line);
+                    continue;
+                }
+                records.add(fields);
             }
         } catch (IOException e) {
             System.err.println("读取文件错误: " + fileName);
@@ -109,10 +121,10 @@ public class DBHelper {
     }
 
     public static void appendRecord(String fileName, String data) {
-        try (BufferedWriter bw = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(fileName, true), StandardCharsets.UTF_8))) {
+        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName, true), StandardCharsets.UTF_8))) {
             bw.write(data);
             bw.newLine();
+            System.out.println("成功写入记录到 " + fileName + ": " + data); // 调试输出
         } catch (IOException e) {
             System.err.println("追加文件错误: " + fileName);
             e.printStackTrace();
@@ -143,18 +155,46 @@ public class DBHelper {
 
     // 操作员相关操作
     public static OperatorEntity findOperator(String account, String password) {
+        System.out.println("=== 调试：开始查找操作员 ===");
+        System.out.println("输入的账号: '" + account + "'");
+        System.out.println("输入的密码: '" + password + "'");
+
         List<String[]> operators = readAllRecords(OPERATOR_FILE);
+        System.out.println("操作员记录总数: " + operators.size());
+
         for (String[] fields : operators) {
-            if (fields.length >= 2 && fields[0].equals(account) && fields[1].equals(password)) {
-                OperatorEntity operator = new OperatorEntity();
-                operator.setAccount(Integer.parseInt(fields[0]));
-                operator.setPassword(fields[1]);
-                operator.setName(fields.length > 2 ? fields[2] : "");
-                operator.setSex(fields.length > 3 ? fields[3] : "");
-                operator.setPhoneNum(fields.length > 4 ? fields[4] : "");
-                return operator;
+            System.out.println("当前记录: " + String.join("|", fields)); // 用|分隔字段更清晰
+
+            // 确保字段足够长
+            if (fields.length < 2) {
+                System.out.println("记录字段不足，跳过");
+                continue;
+            }
+
+            // 检查账号匹配
+            if (fields[0].equals(account)) {
+                System.out.println("找到匹配账号，密码比对: " +
+                        "输入密码='" + password + "', 存储密码='" + fields[1] + "'");
+
+                // 检查密码匹配
+                if (fields[1].equals(password)) {
+                    System.out.println("密码匹配成功！");
+
+                    // 直接创建并返回 OperatorEntity 对象
+                    OperatorEntity operator = new OperatorEntity();
+                    operator.setAccount(Integer.parseInt(fields[0]));
+                    operator.setPassword(fields[1]);
+                    operator.setName(fields.length > 2 ? fields[2] : "");
+                    operator.setSex(fields.length > 3 ? fields[3] : "");
+                    operator.setPhoneNum(fields.length > 4 ? fields[4] : "");
+
+                    return operator;
+                } else {
+                    System.out.println("密码不匹配");
+                }
             }
         }
+        System.out.println("=== 调试：未找到匹配操作员 ===");
         return null;
     }
 
@@ -253,5 +293,22 @@ public class DBHelper {
             trainInfos.add(info);
         }
         return trainInfos;
+    }
+    public static void resetOperatorFile() {
+        try {
+            // 删除旧文件
+            new File(OPERATOR_FILE).delete();
+
+            // 创建新文件并写入数据
+            List<String> operatorData = new ArrayList<>();
+            operatorData.add("1001,admin123,Admin User,Male,555-0001");
+            operatorData.add("1002,op456,Operator Two,Female,555-0002");
+            operatorData.add("1003,abc,Operator Three,Male,555-0003");
+            writeAllRecords(OPERATOR_FILE, operatorData);
+
+            System.out.println("操作员文件已重置");
+        } catch (Exception e) {
+            System.err.println("重置操作员文件失败: " + e.getMessage());
+        }
     }
 }

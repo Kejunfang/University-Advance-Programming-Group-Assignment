@@ -28,7 +28,7 @@ public class MainLogin extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-
+        DBHelper.resetOperatorFile();
         System.out.println("正在初始化数据文件..."); // 调试输出
         File ordersFile = new File("data/orders.txt");
         System.out.println("orders.txt 是否存在: " + ordersFile.exists());

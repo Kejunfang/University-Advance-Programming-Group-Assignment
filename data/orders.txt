@@ -1,2 +1,1 @@
 ORD123,John Doe,2023-01-01 10:00,No,Express100,New York,Boston,08:00,12:00,Student Ticket,50,86.49
-ORD456,Jane Smith,2023-01-02 11:00,Yes,Express200,Boston,New York,09:00,13:00,Adult Ticket,30,75.50
