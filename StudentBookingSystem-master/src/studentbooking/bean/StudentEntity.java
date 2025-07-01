@@ -6,7 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 /**
- * Created by leiyang on 2016/11/27.
+ * @ LiuXinran
  */
 public class StudentEntity {
     private String name;

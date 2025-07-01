@@ -19,7 +19,7 @@ public class DBHelper {
     private static final String ORDERS_FILE = DATA_DIR + "/orders.txt";
     private static final String TRAIN_INFO_FILE = DATA_DIR + "/train_info.txt";
 
-    // 初始化数据目录和文件
+    // Initialize data directories and files
     public static void initializeDataFiles() {
         createDirectory(DATA_DIR);
         createFileIfNotExists(STUDENT_FILE);
@@ -27,20 +27,20 @@ public class DBHelper {
         createFileIfNotExists(ORDERS_FILE);
         createFileIfNotExists(TRAIN_INFO_FILE);
 
-        // 如果文件为空，添加示例数据
+        // If the file is empty, add the example data
         if (isFileEmpty(STUDENT_FILE)) {
             appendRecord(STUDENT_FILE, "John Doe,Male,password123,21,S12345,University of Tech,Engineering,Computer Science,555-1234,123 Main St,New York");
             appendRecord(STUDENT_FILE, "Jane Smith,Female,abc456,22,S67890,State University,Science,Biology,555-5678,456 Oak St,Boston");
         }
 
         if (isFileEmpty(OPERATOR_FILE)) {
-            // 使用覆盖模式写入新文件
+            // Writing a new file using overwrite mode
             List<String> operatorData = new ArrayList<>();
             operatorData.add("1001,admin123,Admin User,Male,555-0001");
             operatorData.add("1002,op456,Operator Two,Female,555-0002");
             operatorData.add("1003,abc,Operator Three,Male,555-0003");
             writeAllRecords(OPERATOR_FILE, operatorData);
-            System.out.println("操作员文件已重新初始化");
+            System.out.println("Operator files have been reinitialized");
         }
 
         if (isFileEmpty(TRAIN_INFO_FILE)) {
@@ -73,7 +73,7 @@ public class DBHelper {
     private static void createDirectory(String dirPath) {
         File dir = new File(dirPath);
         if (!dir.exists() && !dir.mkdirs()) {
-            System.err.println("无法创建数据目录: " + dirPath);
+            System.err.println("Unable to create data catalog: " + dirPath);
         }
     }
 
@@ -82,10 +82,10 @@ public class DBHelper {
         if (!file.exists()) {
             try {
                 if (!file.createNewFile()) {
-                    System.err.println("无法创建文件: " + fileName);
+                    System.err.println("Unable to create file: " + fileName);
                 }
             } catch (IOException e) {
-                System.err.println("创建文件错误: " + fileName);
+                System.err.println("File creation error: " + fileName);
                 e.printStackTrace();
             }
         }
@@ -106,17 +106,17 @@ public class DBHelper {
             String line;
             while ((line = br.readLine()) != null) {
                 line = line.trim();
-                if (line.isEmpty()) continue; // 跳过空行
+                if (line.isEmpty()) continue; // Skip empty lines
 
                 String[] fields = line.split(",");
-                if (fields.length < 2) { // 确保有足够字段
-                    System.out.println("跳过无效记录: " + line);
+                if (fields.length < 2) { // Ensure that there are enough fields
+                    System.out.println("Skip invalid records: " + line);
                     continue;
                 }
                 records.add(fields);
             }
         } catch (IOException e) {
-            System.err.println("读取文件错误: " + fileName);
+            System.err.println("Error reading file: " + fileName);
             e.printStackTrace();
         }
         return records;
@@ -130,7 +130,7 @@ public class DBHelper {
                 bw.newLine();
             }
         } catch (IOException e) {
-            System.err.println("写入文件错误: " + fileName);
+            System.err.println("Write file error: " + fileName);
             e.printStackTrace();
         }
     }
@@ -139,14 +139,14 @@ public class DBHelper {
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName, true), StandardCharsets.UTF_8))) {
             bw.write(data);
             bw.newLine();
-            System.out.println("成功写入记录到 " + fileName + ": " + data); // 调试输出
+            System.out.println("Successfully wrote a record to " + fileName + ": " + data); // 调试输出
         } catch (IOException e) {
-            System.err.println("追加文件错误: " + fileName);
+            System.err.println("Append file error: " + fileName);
             e.printStackTrace();
         }
     }
 
-    // 学生相关操作
+    // Student Related Operations
     public static StudentEntity findStudent(String name, String password) {
         List<String[]> students = readAllRecords(STUDENT_FILE);
         for (String[] fields : students) {
@@ -168,34 +168,34 @@ public class DBHelper {
         return null;
     }
 
-    // 操作员相关操作
+    // Operator-related operations
     public static OperatorEntity findOperator(String account, String password) {
-        System.out.println("=== 调试：开始查找操作员 ===");
-        System.out.println("输入的账号: '" + account + "'");
-        System.out.println("输入的密码: '" + password + "'");
+        System.out.println("=== Debugging: start searching for operators ===");
+        System.out.println("Entered account number: '" + account + "'");
+        System.out.println("Password entered: '" + password + "'");
 
         List<String[]> operators = readAllRecords(OPERATOR_FILE);
-        System.out.println("操作员记录总数: " + operators.size());
+        System.out.println("Total number of operator records: " + operators.size());
 
         for (String[] fields : operators) {
-            System.out.println("当前记录: " + String.join("|", fields)); // 用|分隔字段更清晰
+            System.out.println("Current Records: " + String.join("|", fields)); // 用|分隔字段更清晰
 
-            // 确保字段足够长
+            // Make sure the field is long enough
             if (fields.length < 2) {
-                System.out.println("记录字段不足，跳过");
+                System.out.println("Insufficient record fields, skip");
                 continue;
             }
 
-            // 检查账号匹配
+            // Check Account Matching
             if (fields[0].equals(account)) {
-                System.out.println("找到匹配账号，密码比对: " +
-                        "输入密码='" + password + "', 存储密码='" + fields[1] + "'");
+                System.out.println("Find the matching account number and compare the passwords: " +
+                        "enter a password='" + password + "', Stored Passwords='" + fields[1] + "'");
 
-                // 检查密码匹配
+                // Check Password Match
                 if (fields[1].equals(password)) {
-                    System.out.println("密码匹配成功！");
+                    System.out.println("Password Match Successful！");
 
-                    // 直接创建并返回 OperatorEntity 对象
+                    // Create and return OperatorEntity objects directly.
                     OperatorEntity operator = new OperatorEntity();
                     operator.setAccount(Integer.parseInt(fields[0]));
                     operator.setPassword(fields[1]);
@@ -205,20 +205,20 @@ public class DBHelper {
 
                     return operator;
                 } else {
-                    System.out.println("密码不匹配");
+                    System.out.println("Password mismatch");
                 }
             }
         }
-        System.out.println("=== 调试：未找到匹配操作员 ===");
+        System.out.println("=== Debugging: No matching operator found ===");
         return null;
     }
 
-    // 订单相关操作
+    // Order-related operations
     public static List<OrdersEntity> getAllOrders() {
-        System.out.println("正在从文件加载订单..."); // 调试输出
+        System.out.println("Loading orders from file..."); // debug output
         List<OrdersEntity> orders = new ArrayList<>();
         List<String[]> records = readAllRecords(ORDERS_FILE);
-        System.out.println("读取到 " + records.size() + " 条订单记录"); // 调试输出
+        System.out.println("Retrieved " + records.size() + " Order Records"); // debug output
         for (String[] fields : records) {
             if (fields.length < 12) continue;
             OrdersEntity order = new OrdersEntity();
@@ -291,7 +291,7 @@ public class DBHelper {
         writeAllRecords(ORDERS_FILE, updatedData);
     }
 
-    // 车次信息相关操作
+    // Operations related to trip information
     public static List<TrainInfoEntity> getAllTrainInfos() {
         List<TrainInfoEntity> trainInfos = new ArrayList<>();
         List<String[]> records = readAllRecords(TRAIN_INFO_FILE);
@@ -311,19 +311,19 @@ public class DBHelper {
     }
     public static void resetOperatorFile() {
         try {
-            // 删除旧文件
+            // Delete old files
             new File(OPERATOR_FILE).delete();
 
-            // 创建新文件并写入数据
+            // Creating a new file and writing data
             List<String> operatorData = new ArrayList<>();
             operatorData.add("1001,admin123,Admin User,Male,555-0001");
             operatorData.add("1002,op456,Operator Two,Female,555-0002");
             operatorData.add("1003,abc,Operator Three,Male,555-0003");
             writeAllRecords(OPERATOR_FILE, operatorData);
 
-            System.out.println("操作员文件已重置");
+            System.out.println("Operator file reset");
         } catch (Exception e) {
-            System.err.println("重置操作员文件失败: " + e.getMessage());
+            System.err.println("Failed to reset operator file: " + e.getMessage());
         }
     }
 }

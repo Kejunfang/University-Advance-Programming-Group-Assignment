@@ -90,7 +90,7 @@ public class Login extends Application {
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     }
-                } else if (choice.equals("Admin")) {
+                } else if (choice.equals("Operator")) {
                     OperatorEntity operatorEntity = DBHelper.findOperator(account, password);
                     if (operatorEntity == null) {
                         actiontarget.setFill(Color.FIREBRICK);
