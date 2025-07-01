@@ -99,7 +99,7 @@ public class MainLogin extends Application {
                         actiontarget.setFill(Color.FIREBRICK);
                         actiontarget.setText("Invalid user credentials.");
                     }
-                } else if (choice.equals("Admin")) {
+                } else if (choice.equals("Operator")) {
                     OperatorEntity operator = DBHelper.findOperator(account, password);
                     if (operator != null) {
                         try {
