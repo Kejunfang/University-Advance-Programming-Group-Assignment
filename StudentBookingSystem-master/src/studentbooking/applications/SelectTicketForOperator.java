@@ -1,29 +1,25 @@
+// 替换整个类为：
 package studentbooking.applications;
 
+import studentbooking.bean.TicketEntity;
 import studentbooking.db.DBHelper;
 import studentbooking.bean.OperatorEntity;
-import studentbooking.bean.OrdersEntity;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
+import javafx.geometry.*;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text; // 添加 Text 类的导入
 import javafx.stage.Stage;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SelectTicketForOperator extends Application {
 
     private OperatorEntity operatorEntity;
-    private TableView<OrdersEntity> orderTable = new TableView<>();
-    private final ObservableList<OrdersEntity> orderData = FXCollections.observableArrayList();
+    private TableView<TicketEntity> tableView = new TableView<>();
+    private final ObservableList<TicketEntity> ticketData = FXCollections.observableArrayList();
 
     public SelectTicketForOperator(OperatorEntity operatorEntity) {
         this.operatorEntity = operatorEntity;
@@ -31,156 +27,142 @@ public class SelectTicketForOperator extends Application {
 
     @Override
     public void start(Stage stage) {
-        // Creating a Master Layout
         BorderPane mainLayout = new BorderPane();
 
-        // top heading
-        HBox header = createHeader();
+        // 顶部标题
+        Label title = new Label("Support Ticket Management System");
+        title.setFont(Font.font(24));
+        HBox header = new HBox(title);
+        header.setPadding(new Insets(15));
+        header.setAlignment(Pos.CENTER);
         mainLayout.setTop(header);
 
-        // Left Operator Panel
-        GridPane controlPanel = createControlPanel();
-        mainLayout.setLeft(controlPanel);
+        // 左侧面板 - 操作选项
+        VBox leftPanel = new VBox(15);
+        leftPanel.setPadding(new Insets(15));
+        leftPanel.setPrefWidth(250);
 
-        // Central Order Form
-        setupOrderTable();
-        mainLayout.setCenter(orderTable);
+        Label operatorLabel = new Label("Operator: " + operatorEntity.getName());
+        operatorLabel.setFont(Font.font(16));
 
-        // Configuring scenes and stages
-        Scene scene = new Scene(mainLayout, 1200, 700);
-        scene.getStylesheets().add(getClass().getResource("/studentbooking/css/button.css").toExternalForm());
+        Button refreshButton = new Button("Refresh Tickets");
+        refreshButton.setOnAction(e -> loadAllTickets());
+
+        ComboBox<String> statusFilter = new ComboBox<>();
+        statusFilter.getItems().addAll("All", "New", "In Progress", "Resolved", "Closed");
+        statusFilter.setValue("All");
+
+        Button filterButton = new Button("Apply Filter");
+        filterButton.setOnAction(e -> {
+            if ("All".equals(statusFilter.getValue())) {
+                loadAllTickets();
+            } else {
+                filterTicketsByStatus(statusFilter.getValue());
+            }
+        });
+
+        leftPanel.getChildren().addAll(operatorLabel, refreshButton, statusFilter, filterButton);
+        mainLayout.setLeft(leftPanel);
+
+        // 中央面板 - 工单表格
+        setupTicketTable();
+        ScrollPane scrollPane = new ScrollPane(tableView);
+        mainLayout.setCenter(scrollPane);
+
+        // 底部面板 - 操作按钮
+        HBox bottomPanel = new HBox(10);
+        bottomPanel.setPadding(new Insets(10));
+        bottomPanel.setAlignment(Pos.CENTER_RIGHT);
+
+        TextField notesField = new TextField();
+        notesField.setPromptText("Add notes...");
+        notesField.setPrefWidth(300);
+
+        ComboBox<String> statusCombo = new ComboBox<>();
+        statusCombo.getItems().addAll("New", "In Progress", "Resolved", "Closed");
+
+        Button updateButton = new Button("Update Selected");
+        updateButton.setOnAction(e -> updateSelectedTicket(
+                statusCombo.getValue(),
+                notesField.getText()
+        ));
+
+        bottomPanel.getChildren().addAll(
+                new Label("Status:"), statusCombo,
+                new Label("Notes:"), notesField,
+                updateButton
+        );
+        mainLayout.setBottom(bottomPanel);
+
+        // 加载所有工单
+        loadAllTickets();
+
+        Scene scene = new Scene(mainLayout, 1000, 700);
         stage.setScene(scene);
-        stage.setTitle("Operator Dashboard - Train Ticket System");
+        stage.setTitle("Ticket Management - Operator: " + operatorEntity.getName());
         stage.show();
-
-        // Load All Orders
-        loadAllOrders();
-        orderTable.refresh(); // Force Refresh Form
     }
 
-    private HBox createHeader() {
-        HBox header = new HBox();
-        header.setPadding(new Insets(10, 20, 35, 20));
-        header.setSpacing(10);
-        header.setStyle("-fx-background-color: #f0f0f0;");
+    private void setupTicketTable() {
+        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        Text title = new Text("Operator Dashboard");
-        title.setFill(Color.valueOf("#FF9913"));
-        title.setFont(Font.font(35));
+        TableColumn<TicketEntity, String> idCol = new TableColumn<>("Ticket ID");
+        idCol.setCellValueFactory(new PropertyValueFactory<>("ticketId"));
+        idCol.setPrefWidth(120);
 
-        header.getChildren().add(title);
-        return header;
+        TableColumn<TicketEntity, String> typeCol = new TableColumn<>("Issue Type");
+        typeCol.setCellValueFactory(new PropertyValueFactory<>("issueType"));
+
+        TableColumn<TicketEntity, String> descCol = new TableColumn<>("Description");
+        descCol.setCellValueFactory(new PropertyValueFactory<>("description"));
+        descCol.setPrefWidth(200);
+
+        TableColumn<TicketEntity, String> statusCol = new TableColumn<>("Status");
+        statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
+
+        TableColumn<TicketEntity, String> submittedCol = new TableColumn<>("Submitted By");
+        submittedCol.setCellValueFactory(new PropertyValueFactory<>("submittedBy"));
+
+        TableColumn<TicketEntity, String> assignedCol = new TableColumn<>("Assigned To");
+        assignedCol.setCellValueFactory(new PropertyValueFactory<>("assignedTo"));
+
+        TableColumn<TicketEntity, String> notesCol = new TableColumn<>("Notes");
+        notesCol.setCellValueFactory(new PropertyValueFactory<>("notes"));
+        notesCol.setPrefWidth(150);
+
+        TableColumn<TicketEntity, String> createdCol = new TableColumn<>("Created");
+        createdCol.setCellValueFactory(new PropertyValueFactory<>("createdTime"));
+
+        tableView.getColumns().addAll(idCol, typeCol, descCol, statusCol, submittedCol, assignedCol, notesCol, createdCol);
+        tableView.setItems(ticketData);
     }
 
-    private GridPane createControlPanel() {
-        GridPane panel = new GridPane();
-        panel.setHgap(10);
-        panel.setVgap(10);
-        panel.setPadding(new Insets(10, 20, 0, 10));
-
-        // Operator Information
-        Text operatorInfo = new Text("Operator: " + operatorEntity.getName());
-        operatorInfo.setFont(Font.font(20));
-        panel.add(operatorInfo, 1, 0);
-
-        Text accountInfo = new Text("Account #: " + operatorEntity.getAccount());
-        accountInfo.setFont(Font.font(20));
-        panel.add(accountInfo, 1, 1);
-
-        // search box
-        TextField searchField = new TextField();
-        searchField.setPromptText("Search by name");
-        panel.add(searchField, 1, 3);
-
-        // buttons
-        Button searchButton = new Button("Search");
-        searchButton.getStyleClass().add("button1");
-        panel.add(searchButton, 1, 4);
-
-        Button showAllButton = new Button("Show All Orders");
-        showAllButton.getStyleClass().add("button2");
-        panel.add(showAllButton, 1, 5);
-
-        Button cancelButton = new Button("Cancel Selected");
-        cancelButton.getStyleClass().add("button3");
-        panel.add(cancelButton, 1, 6);
-
-        // pushbutton event
-        searchButton.setOnAction(e -> searchOrders(searchField.getText().trim()));
-        showAllButton.setOnAction(e -> loadAllOrders());
-        cancelButton.setOnAction(e -> cancelSelectedOrders());
-
-        return panel;
+    private void loadAllTickets() {
+        ticketData.clear();
+        ticketData.addAll(DBHelper.getAllTickets());
     }
 
-    private void setupOrderTable() {
-        orderTable.setEditable(true);
-
-        // Creating Columns
-        TableColumn<OrdersEntity, String> orderNumCol = new TableColumn<>("Order #");
-        orderNumCol.setCellValueFactory(new PropertyValueFactory<>("orderNum"));
-
-        TableColumn<OrdersEntity, String> nameCol = new TableColumn<>("Customer");
-        nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
-
-        TableColumn<OrdersEntity, String> timeCol = new TableColumn<>("Order Time");
-        timeCol.setCellValueFactory(new PropertyValueFactory<>("time"));
-
-        TableColumn<OrdersEntity, String> trainCol = new TableColumn<>("Train");
-        trainCol.setCellValueFactory(new PropertyValueFactory<>("trainName"));
-
-        TableColumn<OrdersEntity, String> routeCol = new TableColumn<>("Route");
-        routeCol.setCellValueFactory(cellData ->
-                new javafx.beans.property.SimpleStringProperty(
-                        cellData.getValue().getStartPlace() + " to " + cellData.getValue().getEndPlace()
-                )
-        );
-
-        TableColumn<OrdersEntity, String> departCol = new TableColumn<>("Departure");
-        departCol.setCellValueFactory(new PropertyValueFactory<>("startTime"));
-
-        TableColumn<OrdersEntity, String> arriveCol = new TableColumn<>("Arrival");
-        arriveCol.setCellValueFactory(new PropertyValueFactory<>("endTime"));
-
-        TableColumn<OrdersEntity, String> typeCol = new TableColumn<>("Ticket Type");
-        typeCol.setCellValueFactory(new PropertyValueFactory<>("ticketType"));
-
-        TableColumn<OrdersEntity, Integer> seatsCol = new TableColumn<>("Seats");
-        seatsCol.setCellValueFactory(new PropertyValueFactory<>("remainTickets"));
-
-        TableColumn<OrdersEntity, Double> priceCol = new TableColumn<>("Price");
-        priceCol.setCellValueFactory(new PropertyValueFactory<>("fare"));
-
-
-
-        // Adding columns to a table
-        orderTable.getColumns().addAll(
-                orderNumCol, nameCol, timeCol, trainCol, routeCol,
-                departCol, arriveCol, typeCol, seatsCol, priceCol
-        );
-        orderTable.setItems(orderData);
-    }
-
-    private void loadAllOrders() {
-        orderData.clear();
-        orderData.addAll(DBHelper.getAllOrders());
-    }
-
-    private void searchOrders(String name) {
-        orderData.clear();
-        if (name.isEmpty()) {
-            loadAllOrders();
-        } else {
-            orderData.addAll(DBHelper.getOrdersByName(name));
+    private void filterTicketsByStatus(String status) {
+        ticketData.clear();
+        for (TicketEntity ticket : DBHelper.getAllTickets()) {
+            if (ticket.getStatus().equals(status)) {
+                ticketData.add(ticket);
+            }
         }
     }
 
-    private void cancelSelectedOrders() {
-        List<OrdersEntity> toRemove = new ArrayList<>();
-        for (OrdersEntity order : orderTable.getSelectionModel().getSelectedItems()) {
-            DBHelper.removeOrder(order.getOrderNum());
-            toRemove.add(order);
+    private void updateSelectedTicket(String newStatus, String newNotes) {
+        TicketEntity selected = tableView.getSelectionModel().getSelectedItem();
+        if (selected != null) {
+            if (newStatus != null) selected.setStatus(newStatus);
+            if (!newNotes.isEmpty()) {
+                String updatedNotes = selected.getNotes() == null ?
+                        newNotes : selected.getNotes() + "\n" + newNotes;
+                selected.setNotes(updatedNotes);
+            }
+            selected.setAssignedTo(operatorEntity.getName());
+            DBHelper.updateTicket(selected);
+            tableView.refresh();
         }
-        orderData.removeAll(toRemove);
     }
 }
