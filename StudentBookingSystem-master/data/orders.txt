@@ -1,2 +1,15 @@
-20230701120001,John Doe,2023-07-01 12:00:00,否,Express100,New York,Boston,08:00,12:00,Adult Ticket,50,89.99
-20230701120002,Jane Smith,2023-07-01 12:05:00,否,Express200,Boston,New York,09:00,13:00,Student Ticket,45,75.50
+ORD1719823456789,John Smith,2025-07-01 08:15,No,Express300,Chicago,Detroit,09:30,13:45,Adult Ticket,42,89.50
+ORD1719823456790,Emma Johnson,2025-07-01 09:45,Yes,Express200,San Francisco,Los Angeles,11:15,15:30,Student Ticket,28,65.75
+ORD1719823456791,Michael Brown,2025-07-01 10:30,No,Express100,Boston,New York,12:00,16:15,Adult Ticket,35,102.25
+ORD1719823456792,Sophia Davis,2025-07-01 11:20,Yes,Express300,Seattle,Portland,13:45,17:20,Student Ticket,19,55.90
+ORD1719823456793,William Wilson,2025-07-01 12:10,No,Express200,Miami,Orlando,14:30,18:45,Adult Ticket,51,78.30
+ORD1719823456794,Olivia Martinez,2025-07-01 13:05,Yes,Express100,Washington,Philadelphia,15:15,19:30,Student Ticket,23,95.60
+ORD1719823456795,James Anderson,2025-07-01 14:25,No,Express300,Dallas,Houston,16:00,20:15,Adult Ticket,47,112.40
+ORD1719823456796,Ava Thomas,2025-07-01 15:40,Yes,Express200,Atlanta,Nashville,17:30,21:45,Student Ticket,31,67.80
+ORD1719823456797,Benjamin Taylor,2025-07-01 16:55,No,Express100,Denver,Salt Lake City,18:15,22:30,Adult Ticket,38,124.75
+ORD1719823456798,Mia Jackson,2025-07-01 17:30,Yes,Express300,Minneapolis,Chicago,19:00,23:15,Student Ticket,27,88.20
+ORD1719823456799,Henry White,2025-07-01 18:45,No,Express200,Las Vegas,Phoenix,20:30,00:45,Adult Ticket,44,135.90
+ORD1719823456800,Charlotte Harris,2025-07-01 19:20,Yes,Express100,New Orleans,Memphis,21:15,01:30,Student Ticket,33,72.40
+ORD1719823456801,Alexander Martin,2025-07-01 20:35,No,Express300,Raleigh,Charlotte,22:00,02:15,Adult Ticket,39,97.60
+ORD1719823456802,Amelia Thompson,2025-07-01 21:50,Yes,Express200,Detroit,Cleveland,23:30,03:45,Student Ticket,25,61.75
+ORD1719823456803,Daniel Garcia,2025-07-01 22:15,No,Express100,Portland,Seattle,00:00,04:15,Adult Ticket,46,109.30
