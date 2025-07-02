@@ -70,14 +70,16 @@ public class SelectTicket extends Application {
         leftPanel.getChildren().addAll(newTicketLabel, issueTypeField, descriptionArea, submitButton);
         mainLayout.setLeft(leftPanel);
 
-        // 中央面板 - 工单列表
+        // 中央面板 - 工单列表 (扩大表格区域)
         setupTicketTable();
         ScrollPane scrollPane = new ScrollPane(tableView);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
         mainLayout.setCenter(scrollPane);
 
-        // 底部注销按钮 - 移动到右下角并使用蓝色样式
+        // 底部注销按钮
         Button logoutButton = new Button("Logout");
-        logoutButton.getStyleClass().add("button5"); // 使用蓝色样式
+        logoutButton.getStyleClass().add("button5");
         logoutButton.setOnAction(e -> {
             stage.close();
             new MainLogin().start(new Stage());
@@ -91,7 +93,8 @@ public class SelectTicket extends Application {
         // 加载用户工单
         loadUserTickets();
 
-        Scene scene = new Scene(mainLayout, 900, 600);
+        // 增大窗口尺寸以显示更大的表格
+        Scene scene = new Scene(mainLayout, 1000, 700); // 从 900x600 增大到 1000x700
         scene.getStylesheets().add(getClass().getResource("/studentbooking/css/button.css").toExternalForm());
         stage.setScene(scene);
         stage.setTitle("Support Ticket System - " + studentEntity.getName());
@@ -101,20 +104,29 @@ public class SelectTicket extends Application {
     private void setupTicketTable() {
         tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
+        // 设置表格最小高度以占据更多空间
+        tableView.setMinHeight(400);
+        tableView.setPrefHeight(500);
+
         TableColumn<TicketEntity, String> idCol = new TableColumn<>("Ticket ID");
         idCol.setCellValueFactory(new PropertyValueFactory<>("ticketId"));
+        idCol.setMinWidth(120); // 增加列宽
 
         TableColumn<TicketEntity, String> typeCol = new TableColumn<>("Issue Type");
         typeCol.setCellValueFactory(new PropertyValueFactory<>("issueType"));
+        typeCol.setMinWidth(150); // 增加列宽
 
         TableColumn<TicketEntity, String> statusCol = new TableColumn<>("Status");
         statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
+        statusCol.setMinWidth(100); // 增加列宽
 
         TableColumn<TicketEntity, String> createdCol = new TableColumn<>("Created");
         createdCol.setCellValueFactory(new PropertyValueFactory<>("createdTime"));
+        createdCol.setMinWidth(150); // 增加列宽
 
         TableColumn<TicketEntity, String> updatedCol = new TableColumn<>("Last Updated");
         updatedCol.setCellValueFactory(new PropertyValueFactory<>("lastUpdated"));
+        updatedCol.setMinWidth(150); // 增加列宽
 
         tableView.getColumns().addAll(idCol, typeCol, statusCol, createdCol, updatedCol);
         tableView.setItems(ticketData);
