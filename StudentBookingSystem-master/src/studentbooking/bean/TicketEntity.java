@@ -19,7 +19,15 @@ public class TicketEntity {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
     }
 
+    // 修改无参构造方法，初始化字符串为空值
     public TicketEntity() {
+        this.ticketId = "";
+        this.issueType = "";
+        this.description = "";
+        this.status = "";
+        this.submittedBy = "";
+        this.assignedTo = "";
+        this.notes = "";
         this.createdTime = getCurrentTime();
         this.lastUpdated = getCurrentTime();
     }

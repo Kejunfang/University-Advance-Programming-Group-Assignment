@@ -153,13 +153,15 @@ public class SelectTicketForOperator extends Application {
 
     private void loadAllTickets() {
         ticketData.clear();
+        // 直接获取所有活跃工单（已过滤关闭状态）
         ticketData.addAll(DBHelper.getAllTickets());
     }
 
     private void filterTicketsByStatus(String status) {
         ticketData.clear();
+        // 直接从所有活跃工单中过滤
         for (TicketEntity ticket : DBHelper.getAllTickets()) {
-            if (ticket.getStatus().equals(status)) {
+            if ("All".equals(status) || ticket.getStatus().equals(status)) {
                 ticketData.add(ticket);
             }
         }

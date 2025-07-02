@@ -267,6 +267,7 @@ public class AdminDashboard extends Application {
     }
 
     private void loadTicketData() {
+        // 直接获取所有活跃工单（已过滤关闭状态）
         ticketData.setAll(DBHelper.getAllTickets());
     }
 

@@ -134,10 +134,12 @@ public class SelectTicket extends Application {
 
     private void loadUserTickets() {
         ticketData.clear();
+        // 直接获取所有活跃工单（已过滤关闭状态）
         for (TicketEntity ticket : DBHelper.getAllTickets()) {
             if (ticket.getSubmittedBy().equals(studentEntity.getName())) {
                 ticketData.add(ticket);
             }
         }
     }
+
 }
