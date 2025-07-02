@@ -190,10 +190,13 @@ public class SelectTicketForOperator extends Application {
             selected.setLastUpdated(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 
             DBHelper.updateTicket(selected);
-            tableView.refresh();
 
-            // 立即重新加载数据
-            loadAllTickets();
+            // 如果工单被关闭，立即从表格中移除
+            if ("Closed".equals(newStatus)) {
+                tableView.getItems().remove(selected);
+            } else {
+                tableView.refresh();
+            }
         }
     }
 }

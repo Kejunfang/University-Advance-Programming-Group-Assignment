@@ -284,11 +284,18 @@ public class DBHelper {
         List<String[]> records = readAllRecords(TICKETS_FILE);
         for (String[] fields : records) {
             if (fields.length < 9) continue;
+
+            // 检查工单状态，如果是"Closed"则跳过
+            String status = fields[3].trim();
+            if ("Closed".equals(status)) {
+                continue;
+            }
+
             TicketEntity ticket = new TicketEntity();
             ticket.setTicketId(fields[0]);
             ticket.setIssueType(fields[1]);
             ticket.setDescription(fields[2]);
-            ticket.setStatus(fields[3]);
+            ticket.setStatus(status);
             ticket.setSubmittedBy(fields[4]);
             ticket.setAssignedTo(fields[5]);
             ticket.setNotes(fields[6]);
@@ -321,29 +328,35 @@ public class DBHelper {
 
         for (TicketEntity ticket : tickets) {
             if (ticket.getTicketId().equals(updatedTicket.getTicketId())) {
-                updatedData.add(String.join(",",
-                        updatedTicket.getTicketId(),
-                        updatedTicket.getIssueType(),
-                        updatedTicket.getDescription(),
-                        updatedTicket.getStatus(),
-                        updatedTicket.getSubmittedBy(),
-                        updatedTicket.getAssignedTo(),
-                        updatedTicket.getNotes(),
-                        updatedTicket.getCreatedTime(),
-                        updatedTicket.getLastUpdated()
-                ));
+                // 如果工单状态为"Closed"，不添加到更新列表（即删除）
+                if (!"Closed".equals(updatedTicket.getStatus())) {
+                    updatedData.add(String.join(",",
+                            updatedTicket.getTicketId(),
+                            updatedTicket.getIssueType(),
+                            updatedTicket.getDescription(),
+                            updatedTicket.getStatus(),
+                            updatedTicket.getSubmittedBy(),
+                            updatedTicket.getAssignedTo(),
+                            updatedTicket.getNotes(),
+                            updatedTicket.getCreatedTime(),
+                            updatedTicket.getLastUpdated()
+                    ));
+                }
             } else {
-                updatedData.add(String.join(",",
-                        ticket.getTicketId(),
-                        ticket.getIssueType(),
-                        ticket.getDescription(),
-                        ticket.getStatus(),
-                        ticket.getSubmittedBy(),
-                        ticket.getAssignedTo(),
-                        ticket.getNotes(),
-                        ticket.getCreatedTime(),
-                        ticket.getLastUpdated()
-                ));
+                // 对于其他工单，只保留非"Closed"状态的
+                if (!"Closed".equals(ticket.getStatus())) {
+                    updatedData.add(String.join(",",
+                            ticket.getTicketId(),
+                            ticket.getIssueType(),
+                            ticket.getDescription(),
+                            ticket.getStatus(),
+                            ticket.getSubmittedBy(),
+                            ticket.getAssignedTo(),
+                            ticket.getNotes(),
+                            ticket.getCreatedTime(),
+                            ticket.getLastUpdated()
+                    ));
+                }
             }
         }
         writeAllRecords(TICKETS_FILE, updatedData);

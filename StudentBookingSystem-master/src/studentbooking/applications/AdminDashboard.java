@@ -111,6 +111,8 @@ public class AdminDashboard extends Application {
     }
 
     // 将选中的工单分配给操作员
+    // 将选中的工单分配给操作员
+// 将选中的工单分配给操作员
     private void assignTicketToOperator(String operatorName) {
         TicketEntity selectedTicket = ticketTable.getSelectionModel().getSelectedItem();
         if (selectedTicket != null && operatorName != null && !operatorName.isEmpty()) {
@@ -121,11 +123,15 @@ public class AdminDashboard extends Application {
             selectedTicket.setLastUpdated(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 
             DBHelper.updateTicket(selectedTicket);
-            ticketTable.refresh();
-            new Alert(Alert.AlertType.INFORMATION, "Ticket assigned to " + operatorName).show();
 
-            // 立即重新加载数据
-            loadTicketData();
+            // 如果工单被关闭，立即从表格中移除
+            if ("Closed".equals(selectedTicket.getStatus())) {
+                ticketTable.getItems().remove(selectedTicket);
+            } else {
+                ticketTable.refresh();
+            }
+
+            new Alert(Alert.AlertType.INFORMATION, "Ticket assigned to " + operatorName).show();
         } else {
             new Alert(Alert.AlertType.WARNING, "Please select a ticket and an operator").show();
         }
