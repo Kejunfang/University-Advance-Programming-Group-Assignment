@@ -1,4 +1,3 @@
-// 替换整个类为：
 package studentbooking.applications;
 
 import studentbooking.bean.TicketEntity;
@@ -87,10 +86,24 @@ public class SelectTicketForOperator extends Application {
                 notesField.getText()
         ));
 
+        // 添加注销按钮到右下角
+        Button logoutButton = new Button("Logout");
+        logoutButton.getStyleClass().add("button5"); // 使用蓝色样式
+        logoutButton.setOnAction(e -> {
+            stage.close();
+            new MainLogin().start(new Stage());
+        });
+
+        // 添加弹簧将注销按钮推到最右边
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
         bottomPanel.getChildren().addAll(
                 new Label("Status:"), statusCombo,
                 new Label("Notes:"), notesField,
-                updateButton
+                updateButton,
+                spacer, // 弹簧
+                logoutButton // 注销按钮
         );
         mainLayout.setBottom(bottomPanel);
 
@@ -98,6 +111,7 @@ public class SelectTicketForOperator extends Application {
         loadAllTickets();
 
         Scene scene = new Scene(mainLayout, 1000, 700);
+        scene.getStylesheets().add(getClass().getResource("/studentbooking/css/button.css").toExternalForm());
         stage.setScene(scene);
         stage.setTitle("Ticket Management - Operator: " + operatorEntity.getName());
         stage.show();

@@ -1,21 +1,20 @@
 package studentbooking.db;
 
-import studentbooking.bean.TicketEntity; // 添加这行
+import studentbooking.bean.TicketEntity;
 import studentbooking.bean.StudentEntity;
 import studentbooking.bean.OperatorEntity;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class DBHelper {
-    private static final String DATA_DIR = "data";
-    private static final String STUDENT_FILE = DATA_DIR + "/student.txt";
-    private static final String OPERATOR_FILE = DATA_DIR + "/operator.txt";
-    private static final String TICKETS_FILE = DATA_DIR + "/tickets.txt";
+    public static final String DATA_DIR = "data";
+    public static final String STUDENT_FILE = DATA_DIR + "/student.txt";
+    public static final String OPERATOR_FILE = DATA_DIR + "/operator.txt";
+    public static final String TICKETS_FILE = DATA_DIR + "/tickets.txt";
 
     // Initialize data directories and files
     public static void initializeDataFiles() {
@@ -24,28 +23,36 @@ public class DBHelper {
         createFileIfNotExists(OPERATOR_FILE);
         createFileIfNotExists(TICKETS_FILE);
 
-        // If the file is empty, add the example data
+        // 使用正确格式的初始化数据
         if (isFileEmpty(STUDENT_FILE)) {
-            appendRecord(STUDENT_FILE, "John Doe,Male,password123,21,S12345,University of Tech,Engineering,Computer Science,555-1234,123 Main St,New York");
-            appendRecord(STUDENT_FILE, "Jane Smith,Female,abc456,22,S67890,State University,Science,Biology,555-5678,456 Oak St,Boston");
+            System.out.println("Initializing student data...");
+            // 确保字段顺序正确：姓名,性别,密码,年龄,学号,大学,学院,专业,电话,地址
+            List<String> studentData = Arrays.asList(
+                    "John Doe,Male,password123,21,S12345,University of Tech,Engineering,Computer Science,555-1234,New York",
+                    "Jane Smith,Female,abc456,22,S67890,State University,Science,Biology,555-5678,Boston"
+            );
+            writeAllRecords(STUDENT_FILE, studentData);
         }
 
         if (isFileEmpty(OPERATOR_FILE)) {
-            // Writing a new file using overwrite mode
-            List<String> operatorData = new ArrayList<>();
-            operatorData.add("1001,admin123,Admin User,Male,555-0001");
-            operatorData.add("1002,op456,Operator Two,Female,555-0002");
-            operatorData.add("1003,abc,Operator Three,Male,555-0003");
+            System.out.println("Initializing operator data...");
+            List<String> operatorData = Arrays.asList(
+                    "1001,admin123,Admin User,Male,555-0001",
+                    "1002,op456,Operator Two,Female,555-0002",
+                    "1003,abc,Operator Three,Male,555-0003"
+            );
             writeAllRecords(OPERATOR_FILE, operatorData);
-            System.out.println("Operator files have been reinitialized");
         }
-
     }
 
     private static void createDirectory(String dirPath) {
         File dir = new File(dirPath);
-        if (!dir.exists() && !dir.mkdirs()) {
-            System.err.println("Unable to create data catalog: " + dirPath);
+        if (!dir.exists()) {
+            if (dir.mkdirs()) {
+                System.out.println("Created directory: " + dirPath);
+            } else {
+                System.err.println("Unable to create data catalog: " + dirPath);
+            }
         }
     }
 
@@ -53,12 +60,13 @@ public class DBHelper {
         File file = new File(fileName);
         if (!file.exists()) {
             try {
-                if (!file.createNewFile()) {
+                if (file.createNewFile()) {
+                    System.out.println("Created file: " + fileName);
+                } else {
                     System.err.println("Unable to create file: " + fileName);
                 }
             } catch (IOException e) {
-                System.err.println("File creation error: " + fileName);
-                e.printStackTrace();
+                System.err.println("File creation error: " + fileName + " - " + e.getMessage());
             }
         }
     }
@@ -73,6 +81,12 @@ public class DBHelper {
 
     public static List<String[]> readAllRecords(String fileName) {
         List<String[]> records = new ArrayList<>();
+        File file = new File(fileName);
+        if (!file.exists()) {
+            System.err.println("File does not exist: " + fileName);
+            return records;
+        }
+
         try (BufferedReader br = new BufferedReader(
                 new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8))) {
             String line;
@@ -88,8 +102,7 @@ public class DBHelper {
                 records.add(fields);
             }
         } catch (IOException e) {
-            System.err.println("Error reading file: " + fileName);
-            e.printStackTrace();
+            System.err.println("Error reading file: " + fileName + " - " + e.getMessage());
         }
         return records;
     }
@@ -101,62 +114,178 @@ public class DBHelper {
                 bw.write(line);
                 bw.newLine();
             }
+            System.out.println("Successfully wrote " + data.size() + " records to " + fileName);
         } catch (IOException e) {
-            System.err.println("Write file error: " + fileName);
-            e.printStackTrace();
+            System.err.println("Write file error: " + fileName + " - " + e.getMessage());
         }
     }
 
     public static void appendRecord(String fileName, String data) {
-        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName, true), StandardCharsets.UTF_8))) {
+        try (BufferedWriter bw = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(fileName, true), StandardCharsets.UTF_8))) {
             bw.write(data);
             bw.newLine();
-            System.out.println("Successfully wrote a record to " + fileName + ": " + data); // 调试输出
+            System.out.println("Successfully appended a record to " + fileName + ": " + data);
         } catch (IOException e) {
-            System.err.println("Append file error: " + fileName);
-            e.printStackTrace();
+            System.err.println("Append file error: " + fileName + " - " + e.getMessage());
         }
     }
 
     // Student Related Operations
-    public static StudentEntity findStudent(String name, String password) {
+    public static StudentEntity findStudent(String identifier, String password) {
         List<String[]> students = readAllRecords(STUDENT_FILE);
+        System.out.println("Searching student. Total records: " + students.size());
+
         for (String[] fields : students) {
-            if (fields.length >= 3 && fields[0].equals(name) && fields[2].equals(password)) {
+            System.out.println("Checking record: " + Arrays.toString(fields));
+
+            // 确保有足够字段（至少5个：姓名,性别,密码,年龄,学号）
+            if (fields.length < 5) {
+                System.out.println("Skipping invalid student record (insufficient fields)");
+                continue;
+            }
+
+            boolean match = false;
+            String recordName = fields[0].trim();
+            String recordId = fields[4].trim();
+            String recordPwd = fields[2].trim();
+
+            // 匹配学号或姓名
+            if (recordId.equals(identifier.trim()) ){
+                match = true;
+                System.out.println("Matched by student ID: " + identifier);
+            } else if (recordName.equals(identifier.trim())) {
+                match = true;
+                System.out.println("Matched by name: " + identifier);
+            }
+
+            // 验证密码
+            if (match && recordPwd.equals(password.trim())) {
                 StudentEntity student = new StudentEntity();
-                student.setName(fields[0]);
+                student.setName(recordName);
                 student.setSex(fields[1]);
-                student.setPassword(fields[2]);
-                student.setAge(fields.length > 3 ? Integer.parseInt(fields[3]) : 0);
-                student.setStudentId(fields.length > 4 ? fields[4] : "");
+                student.setPassword(recordPwd);
+
+                try {
+                    student.setAge(Integer.parseInt(fields[3]));
+                } catch (NumberFormatException e) {
+                    student.setAge(0);
+                }
+
+                student.setStudentId(recordId);
+                // 防止数组越界
                 student.setUniversity(fields.length > 5 ? fields[5] : "");
                 student.setFaculty(fields.length > 6 ? fields[6] : "");
                 student.setProfession(fields.length > 7 ? fields[7] : "");
                 student.setPhoneNum(fields.length > 8 ? fields[8] : "");
                 student.setAddress(fields.length > 9 ? fields[9] : "");
+
+                System.out.println("Found matching student: " + student.getName());
                 return student;
             }
         }
+        System.out.println("No matching student found for identifier: " + identifier);
         return null;
     }
 
-    // Operator-related operations
-    public static void resetOperatorFile() {
-        try {
-            // Delete old files
-            new File(OPERATOR_FILE).delete();
+    // 获取所有学生
+    public static List<StudentEntity> getAllStudents() {
+        List<StudentEntity> students = new ArrayList<>();
+        List<String[]> records = readAllRecords(STUDENT_FILE);
+        for (String[] fields : records) {
+            if (fields.length < 3) continue;
+            StudentEntity student = new StudentEntity();
+            student.setName(fields[0]);
+            student.setSex(fields[1]);
+            student.setPassword(fields[2]);
 
-            // Creating a new file and writing data
-            List<String> operatorData = new ArrayList<>();
-            operatorData.add("1001,admin123,Admin User,Male,555-0001");
-            operatorData.add("1002,op456,Operator Two,Female,555-0002");
-            operatorData.add("1003,abc,Operator Three,Male,555-0003");
-            writeAllRecords(OPERATOR_FILE, operatorData);
+            try {
+                student.setAge(fields.length > 3 ? Integer.parseInt(fields[3]) : 0);
+            } catch (NumberFormatException e) {
+                student.setAge(0);
+            }
 
-            System.out.println("Operator file reset");
-        } catch (Exception e) {
-            System.err.println("Failed to reset operator file: " + e.getMessage());
+            student.setStudentId(fields.length > 4 ? fields[4] : "");
+            student.setUniversity(fields.length > 5 ? fields[5] : "");
+            student.setFaculty(fields.length > 6 ? fields[6] : "");
+            student.setProfession(fields.length > 7 ? fields[7] : "");
+            student.setPhoneNum(fields.length > 8 ? fields[8] : "");
+            student.setAddress(fields.length > 9 ? fields[9] : "");
+            students.add(student);
         }
+        return students;
+    }
+
+    // 添加学生
+    public static void addStudent(StudentEntity student) {
+        String data = String.join(",",
+                student.getName(),
+                student.getSex(),
+                student.getPassword(),
+                String.valueOf(student.getAge()),
+                student.getStudentId(),
+                student.getUniversity(),
+                student.getFaculty(),
+                student.getProfession(),
+                student.getPhoneNum(),
+                student.getAddress()
+        );
+        appendRecord(STUDENT_FILE, data);
+    }
+
+    // 删除学生
+    public static void deleteStudent(String name) {
+        List<StudentEntity> students = getAllStudents();
+        List<String> updatedData = new ArrayList<>();
+
+        for (StudentEntity student : students) {
+            if (!student.getName().equals(name)) {
+                updatedData.add(String.join(",",
+                        student.getName(),
+                        student.getSex(),
+                        student.getPassword(),
+                        String.valueOf(student.getAge()),
+                        student.getStudentId(),
+                        student.getUniversity(),
+                        student.getFaculty(),
+                        student.getProfession(),
+                        student.getPhoneNum(),
+                        student.getAddress()
+                ));
+            }
+        }
+        writeAllRecords(STUDENT_FILE, updatedData);
+    }
+
+    // 获取所有操作员
+    public static List<OperatorEntity> getAllOperators() {
+        List<OperatorEntity> operators = new ArrayList<>();
+        List<String[]> records = readAllRecords(OPERATOR_FILE);
+        for (String[] fields : records) {
+            if (fields.length < 2) continue;
+            OperatorEntity operator = new OperatorEntity();
+            try {
+                operator.setAccount(Integer.parseInt(fields[0]));
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid account format: " + fields[0]);
+                continue;
+            }
+            operator.setPassword(fields[1]);
+            operator.setName(fields.length > 2 ? fields[2] : "");
+            operator.setSex(fields.length > 3 ? fields[3] : "");
+            operator.setPhoneNum(fields.length > 4 ? fields[4] : "");
+            operators.add(operator);
+        }
+        return operators;
+    }
+
+    // 获取所有操作员名字
+    public static List<String> getAllOperatorNames() {
+        List<String> names = new ArrayList<>();
+        for (OperatorEntity operator : getAllOperators()) {
+            names.add(operator.getName());
+        }
+        return names;
     }
 
     public static List<TicketEntity> getAllTickets() {
@@ -228,28 +357,33 @@ public class DBHelper {
         writeAllRecords(TICKETS_FILE, updatedData);
     }
 
-    public static OperatorEntity findOperator(String account, String password) {
+    // 修复 findOperator 方法
+    public static OperatorEntity findOperator(String accountInput, String password) {
         List<String[]> operators = readAllRecords(OPERATOR_FILE);
         for (String[] fields : operators) {
-            // 字段顺序: 账号,密码,姓名,性别,电话
-            if (fields.length >= 2 && fields[0].equals(account) && fields[1].equals(password)) {
-                OperatorEntity operator = new OperatorEntity();
-                try {
-                    operator.setAccount(Integer.parseInt(fields[0]));
-                } catch (NumberFormatException e) {
-                    System.err.println("Invalid account format: " + fields[0]);
-                    continue;
+            if (fields.length < 2) continue;
+
+            String recordAccount = fields[0].trim();
+            String recordPwd = fields[1].trim();
+
+            if (recordAccount.equals(accountInput.trim())) {
+                if (recordPwd.equals(password.trim())) {
+                    OperatorEntity operator = new OperatorEntity();
+                    try {
+                        operator.setAccount(Integer.parseInt(recordAccount));
+                    } catch (NumberFormatException e) {
+                        continue; // 跳过无效账号
+                    }
+                    operator.setPassword(recordPwd);
+                    operator.setName(fields.length > 2 ? fields[2] : "");
+                    operator.setSex(fields.length > 3 ? fields[3] : "");
+                    operator.setPhoneNum(fields.length > 4 ? fields[4] : "");
+                    return operator;
                 }
-                operator.setPassword(fields[1]);
-                operator.setName(fields.length > 2 ? fields[2] : "");
-                operator.setSex(fields.length > 3 ? fields[3] : "");
-                operator.setPhoneNum(fields.length > 4 ? fields[4] : "");
-                return operator;
             }
         }
         return null;
     }
-
 
     public static String generateTicketId() {
         return "TKT" + System.currentTimeMillis();

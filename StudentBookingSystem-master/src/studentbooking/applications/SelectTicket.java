@@ -1,4 +1,3 @@
-// 替换整个类为：
 package studentbooking.applications;
 
 import studentbooking.bean.TicketEntity;
@@ -76,10 +75,24 @@ public class SelectTicket extends Application {
         ScrollPane scrollPane = new ScrollPane(tableView);
         mainLayout.setCenter(scrollPane);
 
+        // 底部注销按钮 - 移动到右下角并使用蓝色样式
+        Button logoutButton = new Button("Logout");
+        logoutButton.getStyleClass().add("button5"); // 使用蓝色样式
+        logoutButton.setOnAction(e -> {
+            stage.close();
+            new MainLogin().start(new Stage());
+        });
+
+        HBox bottomBox = new HBox(logoutButton);
+        bottomBox.setAlignment(Pos.CENTER_RIGHT);
+        bottomBox.setPadding(new Insets(10));
+        mainLayout.setBottom(bottomBox);
+
         // 加载用户工单
         loadUserTickets();
 
         Scene scene = new Scene(mainLayout, 900, 600);
+        scene.getStylesheets().add(getClass().getResource("/studentbooking/css/button.css").toExternalForm());
         stage.setScene(scene);
         stage.setTitle("Support Ticket System - " + studentEntity.getName());
         stage.show();
@@ -108,6 +121,7 @@ public class SelectTicket extends Application {
     }
 
     private void loadUserTickets() {
+        ticketData.clear();
         for (TicketEntity ticket : DBHelper.getAllTickets()) {
             if (ticket.getSubmittedBy().equals(studentEntity.getName())) {
                 ticketData.add(ticket);

@@ -6,7 +6,6 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.HPos; // 添加 HPos 的导入
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
@@ -19,20 +18,12 @@ import studentbooking.bean.OperatorEntity;
 import studentbooking.bean.StudentEntity;
 import studentbooking.db.DBHelper;
 
-// 静态导入 HPos.LEFT
-import java.io.File;
-
-import static javafx.geometry.HPos.LEFT;
+import java.util.Arrays;
 
 public class MainLogin extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        DBHelper.resetOperatorFile();
-        System.out.println("Initializing data files..."); // 调试输出
-        File ordersFile = new File("data/orders.txt");
-        System.out.println("orders.txt whether it exists: " + ordersFile.exists());
-        // Ensure that data directories and files exist
         DBHelper.initializeDataFiles();
 
         primaryStage.setTitle("Train Ticket System - Login");
@@ -46,7 +37,7 @@ public class MainLogin extends Application {
         scenetitle.setFont(Font.font(22));
         grid.add(scenetitle, 0, 0, 2, 1);
 
-        Label userName = new Label("Username:");
+        Label userName = new Label("Username/Student ID:");
         grid.add(userName, 0, 2);
 
         TextField userTextField = new TextField();
@@ -61,7 +52,7 @@ public class MainLogin extends Application {
         Label roleLabel = new Label("Login As:");
         grid.add(roleLabel, 0, 4);
 
-        ChoiceBox<String> choiceBox = new ChoiceBox<>(FXCollections.observableArrayList("User", "Operator"));
+        ChoiceBox<String> choiceBox = new ChoiceBox<>(FXCollections.observableArrayList("User", "Operator", "Admin"));
         choiceBox.setValue("User");
         grid.add(choiceBox, 1, 4);
 
@@ -72,9 +63,7 @@ public class MainLogin extends Application {
         grid.add(hbBtn, 1, 6);
 
         final Text actiontarget = new Text();
-        grid.add(actiontarget, 0, 6);
-        grid.setColumnSpan(actiontarget, 2);
-        grid.setHalignment(actiontarget, LEFT); // LEFT is used here
+        grid.add(actiontarget, 0, 6, 2, 1);
         actiontarget.setId("actiontarget");
 
         btn.setOnAction(new EventHandler<ActionEvent>() {
@@ -84,11 +73,16 @@ public class MainLogin extends Application {
                 String password = pwBox.getText().trim();
                 String choice = choiceBox.getValue();
 
+                if (account.isEmpty() || password.isEmpty()) {
+                    actiontarget.setFill(Color.FIREBRICK);
+                    actiontarget.setText("Please enter both username and password");
+                    return;
+                }
+
                 if (choice.equals("User")) {
                     StudentEntity student = DBHelper.findStudent(account, password);
                     if (student != null) {
                         try {
-                            // Launching the User Interface
                             SelectTicket userApp = new SelectTicket(student);
                             primaryStage.close();
                             userApp.start(new Stage());
@@ -97,14 +91,26 @@ public class MainLogin extends Application {
                         }
                     } else {
                         actiontarget.setFill(Color.FIREBRICK);
-                        actiontarget.setText("Invalid user credentials.");
+                        actiontarget.setText("Invalid credentials. Try: John Doe/password123 or S12345/password123");
                     }
                 } else if (choice.equals("Operator")) {
                     OperatorEntity operator = DBHelper.findOperator(account, password);
                     if (operator != null) {
                         try {
-                            // Launching the Administrator Interface
-                            SelectTicketForOperator adminApp = new SelectTicketForOperator(operator);
+                            SelectTicketForOperator operatorApp = new SelectTicketForOperator(operator);
+                            primaryStage.close();
+                            operatorApp.start(new Stage());
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    } else {
+                        actiontarget.setFill(Color.FIREBRICK);
+                        actiontarget.setText("Invalid operator credentials. Try: 1001/admin123");
+                    }
+                } else if (choice.equals("Admin")) {
+                    if ("admin".equals(account) && "admin123".equals(password)) {
+                        try {
+                            AdminDashboard adminApp = new AdminDashboard();
                             primaryStage.close();
                             adminApp.start(new Stage());
                         } catch (Exception ex) {
@@ -112,14 +118,19 @@ public class MainLogin extends Application {
                         }
                     } else {
                         actiontarget.setFill(Color.FIREBRICK);
-                        actiontarget.setText("Invalid admin credentials.");
+                        actiontarget.setText("Invalid admin credentials. Use: admin/admin123");
                     }
                 }
             }
         });
 
-        Scene scene = new Scene(grid, 380, 300);
-        scene.getStylesheets().add(getClass().getResource("/studentbooking/css/button.css").toExternalForm());
+        Scene scene = new Scene(grid, 400, 320);
+        // 修复CSS路径加载问题
+        try {
+            scene.getStylesheets().add(getClass().getResource("/button.css").toExternalForm());
+        } catch (Exception e) {
+            System.err.println("Failed to load CSS: " + e.getMessage());
+        }
         primaryStage.setScene(scene);
         primaryStage.show();
     }

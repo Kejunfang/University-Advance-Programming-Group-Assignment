@@ -21,15 +21,34 @@
     /*-fx-font: bold 20pt "Arial";*/
     /*-fx-effect: dropshadow( one-pass-box , black , 8 , 0.0 , 2 , 0 );*/
     -fx-text-fill: white;
-    -fx-base: #ce4c3a;
+    -fx-background-color: #ce4c3a;
+    -fx-padding: 5 15;
 }
 .button5{
     -fx-font:  13pt null;
     /*-fx-effect: dropshadow( one-pass-box , black , 8 , 0.0 , 2 , 0 );*/
     -fx-text-fill: white;
-    -fx-base: #2577e3;
+    -fx-background-color: #2577e3; /* 蓝色背景 */
+    -fx-padding: 5 15;
+    -fx-background-radius: 5;
 }
+
+/* 添加新样式：蓝色按钮 */
+.button-blue {
+    -fx-font:  13pt null;
+    -fx-text-fill: white;
+    -fx-background-color: #2577e3;
+    -fx-padding: 5 15;
+    -fx-background-radius: 5;
+}
+
 .label1{
     -fx-font: NORMAL 20 Tahoma;
 }
 
+.button-logout {
+    -fx-font: bold 12pt "Arial";
+    -fx-text-fill: white;
+    -fx-background-color: #2577e3; /* 蓝色背景 */
+    -fx-padding: 5 15;
+}
