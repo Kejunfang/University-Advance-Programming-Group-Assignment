@@ -3,5 +3,5 @@ TKT1751445146242,sdf,asdf,Assigned,John Doe,Operator Three,null,2025-07-02 16:32
 TKT1751455063329,test1,haha,In Progress,Hill,Operator Three,i will try to solve it now,2025-07-02 19:17:43,2025-07-02 19:19:22
 TKT1751455067729,test 2,bubu,In Progress,Hill,Operator Three,i will try to solve it now,2025-07-02 19:17:47,2025-07-02 19:19:29
 TKT1751455073962,test 3,omg,Resolved,Hill,Operator Three,i will try to solve it now,2025-07-02 19:17:53,2025-07-02 19:20:38
-TKT1751455081481,test 4,linxiang is sb,Resolved,Hill,Operator Three,i will try to solve it now,2025-07-02 19:18:01,2025-07-02 19:20:36
-TKT1751455127628,test 5,let me try,Resolved,Hill,Operator Three,i will try to solve it now,2025-07-02 19:18:47,2025-07-02 19:20:24
+TKT1751455081481,test 4,linxiang is sb,Closed,Hill,Operator Three,i will try to solve it now,2025-07-02 19:18:01,2025-07-02 19:24:08
+TKT1751455127628,test 5,let me try,Closed,Hill,Operator Three,i will try to solve it now,2025-07-02 19:18:47,2025-07-02 19:22:52
