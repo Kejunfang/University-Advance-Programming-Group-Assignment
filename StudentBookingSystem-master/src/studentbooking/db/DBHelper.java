@@ -328,35 +328,31 @@ public class DBHelper {
 
         for (TicketEntity ticket : tickets) {
             if (ticket.getTicketId().equals(updatedTicket.getTicketId())) {
-                // 如果工单状态为"Closed"，不添加到更新列表（即删除）
-                if (!"Closed".equals(updatedTicket.getStatus())) {
-                    updatedData.add(String.join(",",
-                            updatedTicket.getTicketId(),
-                            updatedTicket.getIssueType(),
-                            updatedTicket.getDescription(),
-                            updatedTicket.getStatus(),
-                            updatedTicket.getSubmittedBy(),
-                            updatedTicket.getAssignedTo(),
-                            updatedTicket.getNotes(),
-                            updatedTicket.getCreatedTime(),
-                            updatedTicket.getLastUpdated()
-                    ));
-                }
+                // 使用更新后的工单数据（备注已被替换）
+                updatedData.add(String.join(",",
+                        updatedTicket.getTicketId(),
+                        updatedTicket.getIssueType(),
+                        updatedTicket.getDescription(),
+                        updatedTicket.getStatus(),
+                        updatedTicket.getSubmittedBy(),
+                        updatedTicket.getAssignedTo(),
+                        updatedTicket.getNotes(), // 这里是更新后的备注
+                        updatedTicket.getCreatedTime(),
+                        updatedTicket.getLastUpdated()
+                ));
             } else {
-                // 对于其他工单，只保留非"Closed"状态的
-                if (!"Closed".equals(ticket.getStatus())) {
-                    updatedData.add(String.join(",",
-                            ticket.getTicketId(),
-                            ticket.getIssueType(),
-                            ticket.getDescription(),
-                            ticket.getStatus(),
-                            ticket.getSubmittedBy(),
-                            ticket.getAssignedTo(),
-                            ticket.getNotes(),
-                            ticket.getCreatedTime(),
-                            ticket.getLastUpdated()
-                    ));
-                }
+                // 其他工单保持不变
+                updatedData.add(String.join(",",
+                        ticket.getTicketId(),
+                        ticket.getIssueType(),
+                        ticket.getDescription(),
+                        ticket.getStatus(),
+                        ticket.getSubmittedBy(),
+                        ticket.getAssignedTo(),
+                        ticket.getNotes(),
+                        ticket.getCreatedTime(),
+                        ticket.getLastUpdated()
+                ));
             }
         }
         writeAllRecords(TICKETS_FILE, updatedData);

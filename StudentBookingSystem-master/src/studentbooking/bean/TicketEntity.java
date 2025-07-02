@@ -62,7 +62,7 @@ public class TicketEntity {
 
     public String getNotes() { return notes; }
     public void setNotes(String notes) {
-        this.notes = notes;
+        this.notes = notes; // 直接替换而不是追加
         updateLastModified();
     }
 

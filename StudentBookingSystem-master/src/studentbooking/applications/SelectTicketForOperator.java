@@ -48,7 +48,7 @@ public class SelectTicketForOperator extends Application {
         operatorLabel.setFont(Font.font(16));
 
         Button refreshButton = new Button("Refresh Tickets");
-        refreshButton.setOnAction(e -> loadAllTickets());
+        refreshButton.setOnAction(e -> loadMyTickets());
 
         ComboBox<String> statusFilter = new ComboBox<>();
         statusFilter.getItems().addAll("All", "New", "In Progress", "Resolved", "Closed");
@@ -57,7 +57,7 @@ public class SelectTicketForOperator extends Application {
         Button filterButton = new Button("Apply Filter");
         filterButton.setOnAction(e -> {
             if ("All".equals(statusFilter.getValue())) {
-                loadAllTickets();
+                loadMyTickets();
             } else {
                 filterTicketsByStatus(statusFilter.getValue());
             }
@@ -110,8 +110,8 @@ public class SelectTicketForOperator extends Application {
         );
         mainLayout.setBottom(bottomPanel);
 
-        // 加载所有工单
-        loadAllTickets();
+        // 加载分配给当前操作员的工单
+        loadMyTickets();
 
         Scene scene = new Scene(mainLayout, 1000, 700);
         scene.getStylesheets().add(getClass().getResource("/studentbooking/css/button.css").toExternalForm());
@@ -154,10 +154,13 @@ public class SelectTicketForOperator extends Application {
         tableView.setItems(ticketData);
     }
 
-    private void loadAllTickets() {
+    // 只加载分配给当前操作员的工单
+    private void loadMyTickets() {
         ticketData.clear();
         for (TicketEntity ticket : DBHelper.getAllTickets()) {
-            if (!"Closed".equals(ticket.getStatus())) {
+            // 只显示分配给当前操作员且未关闭的工单
+            if (operatorEntity.getName().equals(ticket.getAssignedTo()) &&
+                    !"Closed".equals(ticket.getStatus())) {
                 ticketData.add(ticket);
             }
         }
@@ -166,7 +169,9 @@ public class SelectTicketForOperator extends Application {
     private void filterTicketsByStatus(String status) {
         ticketData.clear();
         for (TicketEntity ticket : DBHelper.getAllTickets()) {
-            if ("All".equals(status) || ticket.getStatus().equals(status)) {
+            // 只显示分配给当前操作员且符合状态筛选条件的工单
+            if (operatorEntity.getName().equals(ticket.getAssignedTo()) &&
+                    ("All".equals(status) || ticket.getStatus().equals(status))) {
                 ticketData.add(ticket);
             }
         }
@@ -178,11 +183,13 @@ public class SelectTicketForOperator extends Application {
             if (newStatus != null) {
                 selected.setStatus(newStatus);
             }
+
+            // 修改这里：替换备注而不是追加
             if (!newNotes.isEmpty()) {
-                String updatedNotes = selected.getNotes() == null || selected.getNotes().isEmpty() ?
-                        newNotes : selected.getNotes() + "\n" + newNotes;
-                selected.setNotes(updatedNotes);
+                // 直接使用新备注替换旧备注
+                selected.setNotes(newNotes);
             }
+
             // 确保分配给自己
             selected.setAssignedTo(operatorEntity.getName());
 

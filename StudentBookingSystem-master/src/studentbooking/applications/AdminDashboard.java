@@ -116,6 +116,7 @@ public class AdminDashboard extends Application {
     private void assignTicketToOperator(String operatorName) {
         TicketEntity selectedTicket = ticketTable.getSelectionModel().getSelectedItem();
         if (selectedTicket != null && operatorName != null && !operatorName.isEmpty()) {
+            // 只更新分配人和状态，不修改备注
             selectedTicket.setAssignedTo(operatorName);
             selectedTicket.setStatus("Assigned");
 
@@ -124,13 +125,8 @@ public class AdminDashboard extends Application {
 
             DBHelper.updateTicket(selectedTicket);
 
-            // 如果工单被关闭，立即从表格中移除
-            if ("Closed".equals(selectedTicket.getStatus())) {
-                ticketTable.getItems().remove(selectedTicket);
-            } else {
-                ticketTable.refresh();
-            }
-
+            // 刷新表格
+            ticketTable.refresh();
             new Alert(Alert.AlertType.INFORMATION, "Ticket assigned to " + operatorName).show();
         } else {
             new Alert(Alert.AlertType.WARNING, "Please select a ticket and an operator").show();
