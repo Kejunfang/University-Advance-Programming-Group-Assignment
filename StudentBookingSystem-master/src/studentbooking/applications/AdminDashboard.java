@@ -28,7 +28,7 @@ public class AdminDashboard extends Application {
     public void start(Stage stage) {
         TabPane tabPane = new TabPane();
 
-        // 工单管理标签页
+        // 工单管理标签页 - 添加了分配功能
         Tab ticketsTab = new Tab("Tickets");
         ticketsTab.setContent(createTicketsTab());
 
@@ -42,13 +42,13 @@ public class AdminDashboard extends Application {
 
         tabPane.getTabs().addAll(ticketsTab, usersTab, operatorsTab);
 
-        // 底部注销按钮 - 调整为蓝色样式
+        // 底部注销按钮
         Button logoutButton = new Button("Logout");
         logoutButton.setOnAction(e -> {
             stage.close();
             new MainLogin().start(new Stage());
         });
-        logoutButton.getStyleClass().add("button5"); // 使用蓝色样式
+        logoutButton.getStyleClass().add("button5");
 
         BorderPane mainLayout = new BorderPane();
         mainLayout.setCenter(tabPane);
@@ -68,7 +68,7 @@ public class AdminDashboard extends Application {
         stage.show();
     }
 
-    // 创建工单管理标签页内容
+    // 创建工单管理标签页内容 - 添加了分配功能
     private VBox createTicketsTab() {
         // 设置表格列
         setupTicketTable();
@@ -77,8 +77,25 @@ public class AdminDashboard extends Application {
         Button refreshButton = new Button("Refresh Tickets");
         refreshButton.setOnAction(e -> loadTicketData());
 
+        // 分配工单区域
+        HBox assignBox = new HBox(10);
+        assignBox.setAlignment(Pos.CENTER_LEFT);
+        assignBox.setPadding(new Insets(0, 10, 10, 10));
+
+        Label assignLabel = new Label("Assign to:");
+        ComboBox<String> operatorCombo = new ComboBox<>();
+        operatorCombo.setPrefWidth(150);
+
+        // 加载操作员列表
+        operatorCombo.getItems().addAll(DBHelper.getAllOperatorNames());
+
+        Button assignButton = new Button("Assign Ticket");
+        assignButton.setOnAction(e -> assignTicketToOperator(operatorCombo.getValue()));
+
+        assignBox.getChildren().addAll(assignLabel, operatorCombo, assignButton);
+
         // 操作按钮区域
-        HBox buttonBox = new HBox(10, refreshButton);
+        HBox buttonBox = new HBox(10, refreshButton, assignBox);
         buttonBox.setPadding(new Insets(10));
         buttonBox.setAlignment(Pos.CENTER_LEFT);
 
@@ -86,6 +103,20 @@ public class AdminDashboard extends Application {
         vbox.setPadding(new Insets(10));
         VBox.setVgrow(ticketTable, Priority.ALWAYS);
         return vbox;
+    }
+
+    // 将选中的工单分配给操作员
+    private void assignTicketToOperator(String operatorName) {
+        TicketEntity selectedTicket = ticketTable.getSelectionModel().getSelectedItem();
+        if (selectedTicket != null && operatorName != null && !operatorName.isEmpty()) {
+            selectedTicket.setAssignedTo(operatorName);
+            selectedTicket.setStatus("Assigned");
+            DBHelper.updateTicket(selectedTicket);
+            ticketTable.refresh();
+            new Alert(Alert.AlertType.INFORMATION, "Ticket assigned to " + operatorName).show();
+        } else {
+            new Alert(Alert.AlertType.WARNING, "Please select a ticket and an operator").show();
+        }
     }
 
     // 创建用户管理标签页内容

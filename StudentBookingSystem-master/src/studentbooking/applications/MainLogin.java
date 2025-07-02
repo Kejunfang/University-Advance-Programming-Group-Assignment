@@ -91,7 +91,7 @@ public class MainLogin extends Application {
                         }
                     } else {
                         actiontarget.setFill(Color.FIREBRICK);
-                        actiontarget.setText("Invalid credentials. Try: John Doe/password123 or S12345/password123");
+                        actiontarget.setText("Invalid credentials.");
                     }
                 } else if (choice.equals("Operator")) {
                     OperatorEntity operator = DBHelper.findOperator(account, password);
@@ -105,7 +105,7 @@ public class MainLogin extends Application {
                         }
                     } else {
                         actiontarget.setFill(Color.FIREBRICK);
-                        actiontarget.setText("Invalid operator credentials. Try: 1001/admin123");
+                        actiontarget.setText("Invalid operator credentials.");
                     }
                 } else if (choice.equals("Admin")) {
                     if ("admin".equals(account) && "admin123".equals(password)) {
@@ -118,7 +118,7 @@ public class MainLogin extends Application {
                         }
                     } else {
                         actiontarget.setFill(Color.FIREBRICK);
-                        actiontarget.setText("Invalid admin credentials. Use: admin/admin123");
+                        actiontarget.setText("Invalid admin credentials.");
                     }
                 }
             }
