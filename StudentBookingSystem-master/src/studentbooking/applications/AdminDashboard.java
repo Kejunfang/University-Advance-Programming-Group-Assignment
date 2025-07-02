@@ -15,6 +15,11 @@ import studentbooking.bean.TicketEntity;
 import studentbooking.bean.OperatorEntity;
 import studentbooking.db.DBHelper;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 public class AdminDashboard extends Application {
 
     private TableView<TicketEntity> ticketTable = new TableView<>();
@@ -111,9 +116,16 @@ public class AdminDashboard extends Application {
         if (selectedTicket != null && operatorName != null && !operatorName.isEmpty()) {
             selectedTicket.setAssignedTo(operatorName);
             selectedTicket.setStatus("Assigned");
+
+            // 更新时间戳
+            selectedTicket.setLastUpdated(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+
             DBHelper.updateTicket(selectedTicket);
             ticketTable.refresh();
             new Alert(Alert.AlertType.INFORMATION, "Ticket assigned to " + operatorName).show();
+
+            // 立即重新加载数据
+            loadTicketData();
         } else {
             new Alert(Alert.AlertType.WARNING, "Please select a ticket and an operator").show();
         }
@@ -267,8 +279,14 @@ public class AdminDashboard extends Application {
     }
 
     private void loadTicketData() {
-        // 直接获取所有活跃工单（已过滤关闭状态）
-        ticketData.setAll(DBHelper.getAllTickets());
+        List<TicketEntity> allTickets = DBHelper.getAllTickets();
+        List<TicketEntity> activeTickets = new ArrayList<>();
+        for (TicketEntity t : allTickets) {
+            if (!"Closed".equals(t.getStatus())) {
+                activeTickets.add(t);
+            }
+        }
+        ticketData.setAll(activeTickets);
     }
 
     private void loadStudentData() {

@@ -24,34 +24,16 @@ public class DBHelper {
         createFileIfNotExists(OPERATOR_FILE);
         createFileIfNotExists(TICKETS_FILE);
 
-        // 使用正确格式的初始化数据
-        if (isFileEmpty(STUDENT_FILE)) {
-            System.out.println("Initializing student data...");
-            // 确保字段顺序正确：姓名,性别,密码,年龄,学号,大学,学院,专业,电话,地址
-            List<String> studentData = Arrays.asList(
-                    "John Doe,Male,password123,21,S12345,University of Tech,Engineering,Computer Science,555-1234,New York",
-                    "Jane Smith,Female,abc456,22,S67890,State University,Science,Biology,555-5678,Boston"
-            );
-            writeAllRecords(STUDENT_FILE, studentData);
-        }
-
+        // 只初始化管理员数据
         if (isFileEmpty(OPERATOR_FILE)) {
             System.out.println("Initializing operator data...");
             List<String> operatorData = Arrays.asList(
-                    "1001,admin123,Admin User,Male,555-0001",
-                    "1002,op456,Operator Two,Female,555-0002",
-                    "1003,abc,Operator Three,Male,555-0003"
+                    "1001,admin123,Admin User,Male,555-0001"
             );
             writeAllRecords(OPERATOR_FILE, operatorData);
         }
-        if (isFileEmpty(TICKETS_FILE)) {
-            System.out.println("Initializing ticket data...");
-            List<String> ticketData = Arrays.asList(
-                    "TKT1,Technical,Cannot login,New,John Doe,,,2023-01-01 10:00:00,2023-01-01 10:00:00",
-                    "TKT2,Payment,Payment failed,In Progress,Jane Smith,Operator One,Working on it,2023-01-02 11:00:00,2023-01-02 12:30:00"
-            );
-            writeAllRecords(TICKETS_FILE, ticketData);
-        }
+
+        // 不再初始化学生和工单数据
     }
 
     private static void createDirectory(String dirPath) {
@@ -302,74 +284,71 @@ public class DBHelper {
         List<String[]> records = readAllRecords(TICKETS_FILE);
         for (String[] fields : records) {
             if (fields.length < 9) continue;
-
-            String status = fields[3];
-            // 只处理非关闭状态的工单
-            if (!"Closed".equals(status)) {
-                TicketEntity ticket = new TicketEntity();
-                ticket.setTicketId(fields[0]);
-                ticket.setIssueType(fields[1]);
-                ticket.setDescription(fields[2]);
-                ticket.setStatus(status);
-                ticket.setSubmittedBy(fields[4]);
-                ticket.setAssignedTo(fields[5]);
-                ticket.setNotes(fields[6]);
-                ticket.setCreatedTime(fields[7]);
-                ticket.setLastUpdated(fields[8]);
-                tickets.add(ticket);
-            }
+            TicketEntity ticket = new TicketEntity();
+            ticket.setTicketId(fields[0]);
+            ticket.setIssueType(fields[1]);
+            ticket.setDescription(fields[2]);
+            ticket.setStatus(fields[3]);
+            ticket.setSubmittedBy(fields[4]);
+            ticket.setAssignedTo(fields[5]);
+            ticket.setNotes(fields[6]);
+            ticket.setCreatedTime(fields[7]);
+            ticket.setLastUpdated(fields[8]);
+            tickets.add(ticket);
         }
         return tickets;
     }
 
     // 修改addTicket方法
     public static void addTicket(TicketEntity ticket) {
-        List<TicketEntity> allTickets = getAllTickets();
-
-        // 只保留活跃工单（状态不是Closed）
-        List<TicketEntity> activeTickets = new ArrayList<>();
-        for (TicketEntity t : allTickets) {
-            if (!"Closed".equals(t.getStatus())) {
-                activeTickets.add(t);
-            }
-        }
-
-        // 添加新工单
-        activeTickets.add(ticket);
-
-        // 如果超过最大数量，删除最早创建的工单
-        if (activeTickets.size() > MAX_ACTIVE_TICKETS) {
-            // 按创建时间排序
-            activeTickets.sort((t1, t2) -> t1.getCreatedTime().compareTo(t2.getCreatedTime()));
-            // 移除最早的工单
-            activeTickets.remove(0);
-        }
-
-        // 写入文件
-        writeAllTickets(activeTickets);
+        String data = String.join(",",
+                ticket.getTicketId(),
+                ticket.getIssueType(),
+                ticket.getDescription(),
+                ticket.getStatus(),
+                ticket.getSubmittedBy(),
+                ticket.getAssignedTo(),
+                ticket.getNotes(),
+                ticket.getCreatedTime(),
+                ticket.getLastUpdated()
+        );
+        appendRecord(TICKETS_FILE, data);
     }
 
     public static void updateTicket(TicketEntity updatedTicket) {
         List<TicketEntity> tickets = getAllTickets();
-        List<TicketEntity> updatedList = new ArrayList<>();
+        List<String> updatedData = new ArrayList<>();
 
         for (TicketEntity ticket : tickets) {
             if (ticket.getTicketId().equals(updatedTicket.getTicketId())) {
-                // 如果是关闭状态，不保存
-                if (!"Closed".equals(updatedTicket.getStatus())) {
-                    updatedList.add(updatedTicket);
-                }
+                updatedData.add(String.join(",",
+                        updatedTicket.getTicketId(),
+                        updatedTicket.getIssueType(),
+                        updatedTicket.getDescription(),
+                        updatedTicket.getStatus(),
+                        updatedTicket.getSubmittedBy(),
+                        updatedTicket.getAssignedTo(),
+                        updatedTicket.getNotes(),
+                        updatedTicket.getCreatedTime(),
+                        updatedTicket.getLastUpdated()
+                ));
             } else {
-                // 只保存非关闭状态的工单
-                if (!"Closed".equals(ticket.getStatus())) {
-                    updatedList.add(ticket);
-                }
+                updatedData.add(String.join(",",
+                        ticket.getTicketId(),
+                        ticket.getIssueType(),
+                        ticket.getDescription(),
+                        ticket.getStatus(),
+                        ticket.getSubmittedBy(),
+                        ticket.getAssignedTo(),
+                        ticket.getNotes(),
+                        ticket.getCreatedTime(),
+                        ticket.getLastUpdated()
+                ));
             }
         }
-
-        // 写入文件
-        writeAllTickets(updatedList);
+        writeAllRecords(TICKETS_FILE, updatedData);
     }
+
 
     private static void writeAllTickets(List<TicketEntity> tickets) {
         List<String> data = new ArrayList<>();

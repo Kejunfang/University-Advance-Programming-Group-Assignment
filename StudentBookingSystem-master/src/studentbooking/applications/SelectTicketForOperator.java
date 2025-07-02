@@ -14,6 +14,9 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class SelectTicketForOperator extends Application {
 
     private OperatorEntity operatorEntity;
@@ -153,13 +156,15 @@ public class SelectTicketForOperator extends Application {
 
     private void loadAllTickets() {
         ticketData.clear();
-        // 直接获取所有活跃工单（已过滤关闭状态）
-        ticketData.addAll(DBHelper.getAllTickets());
+        for (TicketEntity ticket : DBHelper.getAllTickets()) {
+            if (!"Closed".equals(ticket.getStatus())) {
+                ticketData.add(ticket);
+            }
+        }
     }
 
     private void filterTicketsByStatus(String status) {
         ticketData.clear();
-        // 直接从所有活跃工单中过滤
         for (TicketEntity ticket : DBHelper.getAllTickets()) {
             if ("All".equals(status) || ticket.getStatus().equals(status)) {
                 ticketData.add(ticket);
@@ -170,15 +175,25 @@ public class SelectTicketForOperator extends Application {
     private void updateSelectedTicket(String newStatus, String newNotes) {
         TicketEntity selected = tableView.getSelectionModel().getSelectedItem();
         if (selected != null) {
-            if (newStatus != null) selected.setStatus(newStatus);
+            if (newStatus != null) {
+                selected.setStatus(newStatus);
+            }
             if (!newNotes.isEmpty()) {
-                String updatedNotes = selected.getNotes() == null ?
+                String updatedNotes = selected.getNotes() == null || selected.getNotes().isEmpty() ?
                         newNotes : selected.getNotes() + "\n" + newNotes;
                 selected.setNotes(updatedNotes);
             }
+            // 确保分配给自己
             selected.setAssignedTo(operatorEntity.getName());
+
+            // 更新时间戳
+            selected.setLastUpdated(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+
             DBHelper.updateTicket(selected);
             tableView.refresh();
+
+            // 立即重新加载数据
+            loadAllTickets();
         }
     }
 }

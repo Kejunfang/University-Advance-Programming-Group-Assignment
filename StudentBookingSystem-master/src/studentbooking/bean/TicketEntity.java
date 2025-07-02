@@ -4,15 +4,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class TicketEntity {
-    private String ticketId;
-    private String issueType;
-    private String description;
-    private String status;
-    private String submittedBy;
-    private String assignedTo;
-    private String notes;
-    private String createdTime;
-    private String lastUpdated;
+    private String ticketId = "";
+    private String issueType = "";
+    private String description = "";
+    private String status = "";
+    private String submittedBy = "";
+    private String assignedTo = "";
+    private String notes = "";
+    private String createdTime = "";
+    private String lastUpdated = "";
 
     // 自动生成时间戳
     private static String getCurrentTime() {
@@ -83,4 +83,6 @@ public class TicketEntity {
     private void updateLastModified() {
         this.lastUpdated = getCurrentTime();
     }
+
+
 }
