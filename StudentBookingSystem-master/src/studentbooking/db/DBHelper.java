@@ -439,4 +439,76 @@ public class DBHelper {
         }
         writeAllRecords(OPERATOR_FILE, updatedData);
     }
+
+    public static boolean isStudentIdentifierExist(String identifier) {
+        List<String[]> students = readAllRecords(STUDENT_FILE);
+        for (String[] fields : students) {
+            if (fields.length < 5) continue;
+
+            String recordName = fields[0].trim();
+            String recordId = fields[4].trim();
+
+            if (recordId.equals(identifier.trim()) || recordName.equals(identifier.trim())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void addStudent(String identifier, String password) {
+        StudentEntity student = new StudentEntity();
+        student.setName(identifier);
+        student.setStudentId(identifier);
+        student.setPassword(password);
+
+        // 设置默认值
+        student.setSex("");
+        student.setAge(0);
+        student.setUniversity("");
+        student.setFaculty("");
+        student.setProfession("");
+        student.setPhoneNum("");
+        student.setAddress("");
+
+        // 添加到文件
+        addStudent(student);
+    }
+    public static void updateStudent(StudentEntity oldStudent, StudentEntity newStudent) {
+        List<StudentEntity> students = getAllStudents();
+        List<String> updatedData = new ArrayList<>();
+
+        for (StudentEntity student : students) {
+            if (student.getStudentId().equals(oldStudent.getStudentId())) {
+                // 替换为更新后的学生信息
+                updatedData.add(String.join(",",
+                        newStudent.getName(),
+                        newStudent.getSex(),
+                        newStudent.getPassword(),
+                        String.valueOf(newStudent.getAge()),
+                        newStudent.getStudentId(),
+                        newStudent.getUniversity(),
+                        newStudent.getFaculty(),
+                        newStudent.getProfession(),
+                        newStudent.getPhoneNum(),
+                        newStudent.getAddress()
+                ));
+            } else {
+                // 保持原样
+                updatedData.add(String.join(",",
+                        student.getName(),
+                        student.getSex(),
+                        student.getPassword(),
+                        String.valueOf(student.getAge()),
+                        student.getStudentId(),
+                        student.getUniversity(),
+                        student.getFaculty(),
+                        student.getProfession(),
+                        student.getPhoneNum(),
+                        student.getAddress()
+                ));
+            }
+        }
+        writeAllRecords(STUDENT_FILE, updatedData);
+    }
+
 }

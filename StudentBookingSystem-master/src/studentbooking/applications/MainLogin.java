@@ -1,5 +1,6 @@
 package studentbooking.applications;
 
+import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -14,6 +15,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import studentbooking.bean.OperatorEntity;
 import studentbooking.bean.StudentEntity;
 import studentbooking.db.DBHelper;
@@ -79,19 +81,55 @@ public class MainLogin extends Application {
                     return;
                 }
 
+// 替换现有的 User 登录逻辑
                 if (choice.equals("User")) {
-                    StudentEntity student = DBHelper.findStudent(account, password);
-                    if (student != null) {
-                        try {
-                            SelectTicket userApp = new SelectTicket(student);
-                            primaryStage.close();
-                            userApp.start(new Stage());
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
+                    // 先检查用户名是否存在
+                    if (!DBHelper.isStudentIdentifierExist(account)) {
+                        // 自动注册新用户
+                        DBHelper.addStudent(account, password);
+
+                        // 获取新注册的学生
+                        StudentEntity newStudent = DBHelper.findStudent(account, password);
+
+                        if (newStudent != null) {
+                            try {
+                                actiontarget.setFill(Color.GREEN);
+                                actiontarget.setText("Account created and logged in successfully!");
+
+                                // 延迟后进入系统
+                                PauseTransition pause = new PauseTransition(Duration.seconds(1));
+                                pause.setOnFinished(event -> {
+                                    try {
+                                        SelectTicket userApp = new SelectTicket(newStudent);
+                                        primaryStage.close();
+                                        userApp.start(new Stage());
+                                    } catch (Exception ex) {
+                                        ex.printStackTrace();
+                                    }
+                                });
+                                pause.play();
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        } else {
+                            actiontarget.setFill(Color.FIREBRICK);
+                            actiontarget.setText("Failed to create new account.");
                         }
                     } else {
-                        actiontarget.setFill(Color.FIREBRICK);
-                        actiontarget.setText("Invalid credentials.");
+                        // 用户名存在，验证密码
+                        StudentEntity student = DBHelper.findStudent(account, password);
+                        if (student != null) {
+                            try {
+                                SelectTicket userApp = new SelectTicket(student);
+                                primaryStage.close();
+                                userApp.start(new Stage());
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        } else {
+                            actiontarget.setFill(Color.FIREBRICK);
+                            actiontarget.setText("Invalid password.");
+                        }
                     }
                 } else if (choice.equals("Operator")) {
                     OperatorEntity operator = DBHelper.findOperator(account, password);

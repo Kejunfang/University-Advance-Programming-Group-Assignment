@@ -31,12 +31,22 @@ public class SelectTicket extends Application {
         BorderPane mainLayout = new BorderPane();
 
         // 顶部标题
+        HBox topBar = new HBox();
+        topBar.setPadding(new Insets(15));
+        topBar.setAlignment(Pos.CENTER);
+        topBar.setSpacing(20);
+
         Label title = new Label("Customer Support Ticket System");
         title.setFont(Font.font(24));
-        HBox header = new HBox(title);
-        header.setPadding(new Insets(15));
-        header.setAlignment(Pos.CENTER);
-        mainLayout.setTop(header);
+
+        HBox buttonBar = createTopButtonBar();
+
+        // 添加弹簧将按钮推到右边
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        topBar.getChildren().addAll(title, spacer, buttonBar);
+        mainLayout.setTop(topBar);
 
         // 左侧面板 - 创建新工单
         VBox leftPanel = new VBox(10);
@@ -200,5 +210,127 @@ public class SelectTicket extends Application {
                 }
             }
         }
+    }
+    private HBox createTopButtonBar() {
+        Button editProfileButton = new Button("Edit Profile");
+        editProfileButton.getStyleClass().add("button-blue");
+        editProfileButton.setOnAction(e -> showEditProfileDialog());
+
+        HBox buttonBar = new HBox(10, editProfileButton);
+        buttonBar.setAlignment(Pos.CENTER_RIGHT);
+        buttonBar.setPadding(new Insets(0, 15, 10, 0));
+        return buttonBar;
+    }
+    private void showEditProfileDialog() {
+        Dialog<StudentEntity> dialog = new Dialog<>();
+        dialog.setTitle("Edit Profile");
+        dialog.setHeaderText("Update your personal information");
+
+        // 创建表单
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        // 只读字段
+        TextField idField = new TextField(studentEntity.getStudentId());
+        idField.setEditable(false);
+        idField.setDisable(true);
+
+        // 可编辑字段
+        TextField nameField = new TextField(studentEntity.getName());
+        TextField sexField = new TextField(studentEntity.getSex());
+        TextField ageField = new TextField(String.valueOf(studentEntity.getAge()));
+        TextField universityField = new TextField(studentEntity.getUniversity());
+        TextField facultyField = new TextField(studentEntity.getFaculty());
+        TextField professionField = new TextField(studentEntity.getProfession());
+        TextField phoneField = new TextField(studentEntity.getPhoneNum());
+        TextField addressField = new TextField(studentEntity.getAddress());
+
+        // 密码字段
+        PasswordField passwordField = new PasswordField();
+        passwordField.setPromptText("Leave blank to keep current password");
+
+        grid.add(new Label("Student ID:"), 0, 0);
+        grid.add(idField, 1, 0);
+        grid.add(new Label("Name:"), 0, 1);
+        grid.add(nameField, 1, 1);
+        grid.add(new Label("Gender:"), 0, 2);
+        grid.add(sexField, 1, 2);
+        grid.add(new Label("Age:"), 0, 3);
+        grid.add(ageField, 1, 3);
+        grid.add(new Label("Password:"), 0, 4);
+        grid.add(passwordField, 1, 4);
+        grid.add(new Label("University:"), 0, 5);
+        grid.add(universityField, 1, 5);
+        grid.add(new Label("Faculty:"), 0, 6);
+        grid.add(facultyField, 1, 6);
+        grid.add(new Label("Profession:"), 0, 7);
+        grid.add(professionField, 1, 7);
+        grid.add(new Label("Phone:"), 0, 8);
+        grid.add(phoneField, 1, 8);
+        grid.add(new Label("Address:"), 0, 9);
+        grid.add(addressField, 1, 9);
+
+        dialog.getDialogPane().setContent(grid);
+
+        // 添加按钮
+        ButtonType saveButton = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButton, ButtonType.CANCEL);
+
+        // 结果转换器
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButton) {
+                try {
+                    // 创建更新后的学生对象
+                    StudentEntity updatedStudent = new StudentEntity();
+                    updatedStudent.setStudentId(studentEntity.getStudentId()); // 学号不变
+                    updatedStudent.setName(nameField.getText());
+                    updatedStudent.setSex(sexField.getText());
+
+                    // 如果密码字段不为空，则更新密码
+                    if (!passwordField.getText().isEmpty()) {
+                        updatedStudent.setPassword(passwordField.getText());
+                    } else {
+                        updatedStudent.setPassword(studentEntity.getPassword());
+                    }
+
+                    updatedStudent.setAge(Integer.parseInt(ageField.getText()));
+                    updatedStudent.setUniversity(universityField.getText());
+                    updatedStudent.setFaculty(facultyField.getText());
+                    updatedStudent.setProfession(professionField.getText());
+                    updatedStudent.setPhoneNum(phoneField.getText());
+                    updatedStudent.setAddress(addressField.getText());
+
+                    return updatedStudent;
+                } catch (NumberFormatException e) {
+                    new Alert(Alert.AlertType.ERROR, "Invalid age format").show();
+                    return null;
+                }
+            }
+            return null;
+        });
+        // 处理结果
+        dialog.showAndWait().ifPresent(updatedStudent -> {
+            // 更新数据库中的学生信息
+            DBHelper.updateStudent(studentEntity, updatedStudent);
+
+            // 更新当前学生实体
+            studentEntity.setName(updatedStudent.getName());
+            studentEntity.setSex(updatedStudent.getSex());
+            studentEntity.setPassword(updatedStudent.getPassword());
+            studentEntity.setAge(updatedStudent.getAge());
+            studentEntity.setUniversity(updatedStudent.getUniversity());
+            studentEntity.setFaculty(updatedStudent.getFaculty());
+            studentEntity.setProfession(updatedStudent.getProfession());
+            studentEntity.setPhoneNum(updatedStudent.getPhoneNum());
+            studentEntity.setAddress(updatedStudent.getAddress());
+
+            // 更新窗口标题
+            Stage stage = (Stage) activeTicketTable.getScene().getWindow();
+            stage.setTitle("Support Ticket System - " + studentEntity.getName());
+
+            new Alert(Alert.AlertType.INFORMATION, "Profile updated successfully").show();
+        });
     }
 }

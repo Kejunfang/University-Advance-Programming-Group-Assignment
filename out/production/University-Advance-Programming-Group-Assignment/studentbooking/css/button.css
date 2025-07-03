@@ -57,3 +57,21 @@
 .table-cell {
     -fx-wrap-text: true;
 }
+
+/* 在 button.css 中添加以下样式 */
+
+.button-blue {
+    -fx-font:  13pt null;
+    -fx-text-fill: white;
+    -fx-background-color: #2577e3;
+    -fx-padding: 5 15;
+    -fx-background-radius: 5;
+}
+
+.edit-profile-button {
+    -fx-font: bold 12pt "Arial";
+    -fx-text-fill: white;
+    -fx-background-color: #4CAF50; /* 绿色背景 */
+    -fx-padding: 5 15;
+    -fx-background-radius: 5;
+}
