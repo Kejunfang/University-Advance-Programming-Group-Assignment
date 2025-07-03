@@ -19,8 +19,8 @@ import java.util.Date;
 
 public class OperatorPage extends Application {
 
-    private OperatorEntity operatorEntity;
-    private TableView<TicketEntity> tableView = new TableView<>();
+    private final OperatorEntity operatorEntity;
+    private final TableView<TicketEntity> tableView = new TableView<>();
     private final ObservableList<TicketEntity> ticketData = FXCollections.observableArrayList();
 
     public OperatorPage(OperatorEntity operatorEntity) {
