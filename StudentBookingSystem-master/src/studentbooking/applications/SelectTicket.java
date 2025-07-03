@@ -1,48 +1,26 @@
 package studentbooking.applications;
 
-
-import javafx.geometry.Pos;
+import studentbooking.bean.TicketEntity;
 import studentbooking.db.DBHelper;
-import studentbooking.bean.OrdersEntity;
 import studentbooking.bean.StudentEntity;
-import studentbooking.bean.TicketInfoEntity;
-import studentbooking.bean.TrainInfoEntity;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
+import javafx.geometry.*;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.effect.Reflection;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.LinearGradient;
-import javafx.scene.paint.Stop;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 public class SelectTicket extends Application {
 
     private StudentEntity studentEntity;
-    private TableView<TicketInfoEntity> tableView = new TableView<>();
-    private final String defaultStart = "Departure";
-    private final String defaultEnd = "Destination";
-    private Label routeLabel = new Label(defaultStart + " ——> " + defaultEnd);
-    private final ObservableList<TicketInfoEntity> ticketData = FXCollections.observableArrayList();
-
-    public SelectTicket() {
-        this.studentEntity = new StudentEntity();
-        this.studentEntity.setName("default");
-    }
+    private TableView<TicketEntity> activeTicketTable = new TableView<>();
+    private TableView<TicketEntity> resolvedTicketTable = new TableView<>();
+    private final ObservableList<TicketEntity> activeTicketData = FXCollections.observableArrayList();
+    private final ObservableList<TicketEntity> resolvedTicketData = FXCollections.observableArrayList();
 
     public SelectTicket(StudentEntity studentEntity) {
         this.studentEntity = studentEntity;
@@ -50,268 +28,309 @@ public class SelectTicket extends Application {
 
     @Override
     public void start(Stage stage) {
-        // Creating a Master Layout
         BorderPane mainLayout = new BorderPane();
 
-        // top heading
-        HBox header = createHeader();
-        mainLayout.setTop(header);
+        // 顶部标题
+        HBox topBar = new HBox();
+        topBar.setPadding(new Insets(15));
+        topBar.setAlignment(Pos.CENTER);
+        topBar.setSpacing(20);
 
-        // Left User Panel
-        GridPane userPanel = createUserPanel();
-        mainLayout.setLeft(userPanel);
+        Label title = new Label("Customer Support Ticket System");
+        title.setFont(Font.font(24));
 
-        // Central content area
-        GridPane centerPanel = createCenterPanel();
-        mainLayout.setCenter(centerPanel);
+        HBox buttonBar = createTopButtonBar();
 
-        // Configuring scenes and stages
-        Scene scene = new Scene(mainLayout, 1000, 700);
+        // 添加弹簧将按钮推到右边
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        topBar.getChildren().addAll(title, spacer, buttonBar);
+        mainLayout.setTop(topBar);
+
+        // 左侧面板 - 创建新工单
+        VBox leftPanel = new VBox(10);
+        leftPanel.setPadding(new Insets(15));
+        leftPanel.setPrefWidth(300);
+
+        Label newTicketLabel = new Label("Create New Ticket");
+        newTicketLabel.setFont(Font.font(18));
+
+        TextField issueTypeField = new TextField();
+        issueTypeField.setPromptText("Issue Type");
+
+        TextArea descriptionArea = new TextArea();
+        descriptionArea.setPromptText("Description");
+        descriptionArea.setPrefRowCount(5);
+
+        Button submitButton = new Button("Submit Ticket");
+        submitButton.setOnAction(e -> {
+            TicketEntity ticket = new TicketEntity();
+            ticket.setTicketId(DBHelper.generateTicketId());
+            ticket.setIssueType(issueTypeField.getText());
+            ticket.setDescription(descriptionArea.getText());
+            ticket.setStatus("New");
+            ticket.setSubmittedBy(studentEntity.getName());
+
+            DBHelper.addTicket(ticket);
+            activeTicketData.add(ticket);
+
+            issueTypeField.clear();
+            descriptionArea.clear();
+        });
+
+        leftPanel.getChildren().addAll(newTicketLabel, issueTypeField, descriptionArea, submitButton);
+        mainLayout.setLeft(leftPanel);
+
+        // 中央面板 - 两个工单表格
+        VBox centerBox = new VBox(15);
+        centerBox.setPadding(new Insets(15));
+
+        // 活动工单表格
+        Label activeTicketsLabel = new Label("Active Tickets");
+        activeTicketsLabel.setFont(Font.font(18));
+        setupActiveTicketTable();
+        VBox activeBox = new VBox(5, activeTicketsLabel, activeTicketTable);
+        activeBox.setPadding(new Insets(0, 0, 10, 0));
+
+        // 已解决工单表格
+        Label resolvedTicketsLabel = new Label("Resolved Tickets");
+        resolvedTicketsLabel.setFont(Font.font(18));
+        setupResolvedTicketTable();
+        VBox resolvedBox = new VBox(5, resolvedTicketsLabel, resolvedTicketTable);
+        resolvedBox.setPadding(new Insets(10, 0, 0, 0));
+
+        centerBox.getChildren().addAll(activeBox, resolvedBox);
+        mainLayout.setCenter(centerBox);
+
+        // 底部注销按钮
+        Button logoutButton = new Button("Logout");
+        logoutButton.getStyleClass().add("button5");
+        logoutButton.setOnAction(e -> {
+            stage.close();
+            new MainLogin().start(new Stage());
+        });
+
+        HBox bottomBox = new HBox(logoutButton);
+        bottomBox.setAlignment(Pos.CENTER_RIGHT);
+        bottomBox.setPadding(new Insets(10));
+        mainLayout.setBottom(bottomBox);
+
+        // 加载用户工单
+        loadUserTickets();
+
+        // 增大窗口尺寸以显示更大的表格
+        Scene scene = new Scene(mainLayout, 1200, 900); // 增加窗口尺寸
         scene.getStylesheets().add(getClass().getResource("/studentbooking/css/button.css").toExternalForm());
         stage.setScene(scene);
-        stage.setTitle("Train Ticket Booking System");
+        stage.setTitle("Support Ticket System - " + studentEntity.getName());
         stage.show();
     }
 
-    private HBox createHeader() {
-        HBox header = new HBox();
-        header.setPadding(new Insets(10, 20, 35, 20));
-        header.setSpacing(10);
-        header.setStyle("-fx-background-color: #f0f0f0;");
+    private void setupActiveTicketTable() {
+        // 使用可调整列宽策略
+        activeTicketTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+        activeTicketTable.setMinHeight(200);
+        activeTicketTable.setPrefHeight(300); // 增加表格高度
 
-        Text title = new Text("Train Ticket Booking System");
-        title.setFill(Color.valueOf("#0795F4"));
-        title.setFont(Font.font(35));
+        TableColumn<TicketEntity, String> idCol = new TableColumn<>("Ticket ID");
+        idCol.setCellValueFactory(new PropertyValueFactory<>("ticketId"));
+        idCol.setMinWidth(120);
 
-        Reflection reflection = new Reflection();
-        reflection.setFraction(0.7f);
-        title.setEffect(reflection);
+        TableColumn<TicketEntity, String> typeCol = new TableColumn<>("Issue Type");
+        typeCol.setCellValueFactory(new PropertyValueFactory<>("issueType"));
+        typeCol.setMinWidth(150);
 
-        header.getChildren().add(title);
-        return header;
+        TableColumn<TicketEntity, String> statusCol = new TableColumn<>("Status");
+        statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
+        statusCol.setMinWidth(100);
+
+        TableColumn<TicketEntity, String> createdCol = new TableColumn<>("Created");
+        createdCol.setCellValueFactory(new PropertyValueFactory<>("createdTime"));
+        createdCol.setMinWidth(150);
+
+        TableColumn<TicketEntity, String> updatedCol = new TableColumn<>("Last Updated");
+        updatedCol.setCellValueFactory(new PropertyValueFactory<>("lastUpdated"));
+        updatedCol.setMinWidth(150);
+
+        // 添加操作员备注列 - 增加宽度
+        TableColumn<TicketEntity, String> notesCol = new TableColumn<>("Operator Notes");
+        notesCol.setCellValueFactory(new PropertyValueFactory<>("notes"));
+        notesCol.setMinWidth(400); // 增加备注列宽度
+
+        activeTicketTable.getColumns().addAll(idCol, typeCol, statusCol, createdCol, updatedCol, notesCol);
+        activeTicketTable.setItems(activeTicketData);
     }
 
-    private GridPane createUserPanel() {
-        GridPane userPanel = new GridPane();
-        userPanel.setHgap(10);
-        userPanel.setVgap(10);
-        userPanel.setPadding(new Insets(10, 20, 0, 10));
+    private void setupResolvedTicketTable() {
+        // 使用可调整列宽策略
+        resolvedTicketTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+        resolvedTicketTable.setMinHeight(200);
+        resolvedTicketTable.setPrefHeight(300); // 增加表格高度
 
-        // user information
-        Text userInfo = new Text("User: " + studentEntity.getName());
-        userInfo.setFont(Font.font(20));
-        userPanel.add(userInfo, 1, 0);
+        TableColumn<TicketEntity, String> idCol = new TableColumn<>("Ticket ID");
+        idCol.setCellValueFactory(new PropertyValueFactory<>("ticketId"));
+        idCol.setMinWidth(120);
 
-        Text universityInfo = new Text("University: " + studentEntity.getUniversity());
-        universityInfo.setFont(Font.font(20));
-        userPanel.add(universityInfo, 1, 1);
+        TableColumn<TicketEntity, String> typeCol = new TableColumn<>("Issue Type");
+        typeCol.setCellValueFactory(new PropertyValueFactory<>("issueType"));
+        typeCol.setMinWidth(150);
 
-        // search box
-        TextField departureField = new TextField();
-        departureField.setPromptText("Departure");
-        userPanel.add(departureField, 1, 2);
+        TableColumn<TicketEntity, String> statusCol = new TableColumn<>("Status");
+        statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
+        statusCol.setMinWidth(100);
 
-        TextField destinationField = new TextField();
-        destinationField.setPromptText("Destination");
-        userPanel.add(destinationField, 1, 3);
+        TableColumn<TicketEntity, String> createdCol = new TableColumn<>("Created");
+        createdCol.setCellValueFactory(new PropertyValueFactory<>("createdTime"));
+        createdCol.setMinWidth(150);
 
-        // buttons
-        Button searchButton = new Button("Search Tickets");
-        searchButton.getStyleClass().add("button1");
-        userPanel.add(searchButton, 1, 5);
+        TableColumn<TicketEntity, String> updatedCol = new TableColumn<>("Last Updated");
+        updatedCol.setCellValueFactory(new PropertyValueFactory<>("lastUpdated"));
+        updatedCol.setMinWidth(150);
 
-        Button viewOrdersButton = new Button("View My Orders");
-        viewOrdersButton.getStyleClass().add("button2");
-        userPanel.add(viewOrdersButton, 1, 7);
+        // 添加操作员备注列 - 增加宽度
+        TableColumn<TicketEntity, String> notesCol = new TableColumn<>("Operator Notes");
+        notesCol.setCellValueFactory(new PropertyValueFactory<>("notes"));
+        notesCol.setMinWidth(400); // 增加备注列宽度
 
-        // Button Event Handling
-        searchButton.setOnAction(e -> {
-            String departure = departureField.getText().trim();
-            String destination = destinationField.getText().trim();
-
-            if (departure.isEmpty()) departure = defaultStart;
-            if (destination.isEmpty()) destination = defaultEnd;
-
-            routeLabel.setText(departure + " ——> " + destination);
-            searchTickets(departure, destination);
-        });
-
-        viewOrdersButton.setOnAction(e -> {
-            loadUserOrders();
-        });
-
-        return userPanel;
+        resolvedTicketTable.getColumns().addAll(idCol, typeCol, statusCol, createdCol, updatedCol, notesCol);
+        resolvedTicketTable.setItems(resolvedTicketData);
     }
 
-    private GridPane createCenterPanel() {
-        GridPane centerPanel = new GridPane();
-        centerPanel.setAlignment(Pos.CENTER);
-        centerPanel.setHgap(10);
-        centerPanel.setVgap(10);
-        centerPanel.setPadding(new Insets(10));
+    private void loadUserTickets() {
+        activeTicketData.clear();
+        resolvedTicketData.clear();
 
-        // route label
-        routeLabel.getStyleClass().add("label1");
-        centerPanel.add(routeLabel, 0, 0);
-
-        // Operation buttons
-        Button bookButton = new Button("Book Selected");
-        bookButton.getStyleClass().add("button3");
-        centerPanel.add(bookButton, 1, 0);
-
-        Button cancelButton = new Button("Cancel Selected");
-        cancelButton.getStyleClass().add("button3");
-        centerPanel.add(cancelButton, 2, 0);
-
-        // Ticket Form
-        setupTicketTable();
-        centerPanel.add(tableView, 0, 1, 3, 1);
-
-        // button event
-        bookButton.setOnAction(e -> bookSelectedTickets());
-        cancelButton.setOnAction(e -> cancelSelectedTickets());
-
-        return centerPanel;
-    }
-
-    private void setupTicketTable() {
-        tableView.setEditable(true);
-
-        // Creating Columns
-        TableColumn<TicketInfoEntity, String> trainCol = new TableColumn<>("Train");
-        trainCol.setCellValueFactory(new PropertyValueFactory<>("trainName"));
-
-        TableColumn<TicketInfoEntity, String> fromCol = new TableColumn<>("From");
-        fromCol.setCellValueFactory(new PropertyValueFactory<>("startPlace"));
-
-        TableColumn<TicketInfoEntity, String> toCol = new TableColumn<>("To");
-        toCol.setCellValueFactory(new PropertyValueFactory<>("endPlace"));
-
-        TableColumn<TicketInfoEntity, String> departCol = new TableColumn<>("Departure");
-        departCol.setCellValueFactory(new PropertyValueFactory<>("startTime"));
-
-        TableColumn<TicketInfoEntity, String> arriveCol = new TableColumn<>("Arrival");
-        arriveCol.setCellValueFactory(new PropertyValueFactory<>("endTime"));
-
-        TableColumn<TicketInfoEntity, String> typeCol = new TableColumn<>("Type");
-        typeCol.setCellValueFactory(new PropertyValueFactory<>("ticketType"));
-
-        TableColumn<TicketInfoEntity, Integer> seatsCol = new TableColumn<>("Seats");
-        seatsCol.setCellValueFactory(new PropertyValueFactory<>("remainTickets"));
-
-        TableColumn<TicketInfoEntity, Double> priceCol = new TableColumn<>("Price");
-        priceCol.setCellValueFactory(new PropertyValueFactory<>("fare"));
-
-        // Adding columns to a table
-        tableView.getColumns().addAll(trainCol, fromCol, toCol, departCol, arriveCol, typeCol, seatsCol, priceCol);
-        tableView.setItems(ticketData);
-    }
-
-    private void searchTickets(String departure, String destination) {
-        ticketData.clear();
-        List<TrainInfoEntity> allTrainInfo = DBHelper.getAllTrainInfos();
-        List<OrdersEntity> allOrders = DBHelper.getAllOrders();
-
-        for (TrainInfoEntity departureInfo : allTrainInfo) {
-            if (departureInfo.getStationName().equals(departure)) {
-                for (TrainInfoEntity arrivalInfo : allTrainInfo) {
-                    if (arrivalInfo.getStationName().equals(destination) &&
-                            arrivalInfo.getTrainName().equals(departureInfo.getTrainName()) &&
-                            arrivalInfo.getNum() > departureInfo.getNum()) {
-
-                        // 创建车票信息
-                        TicketInfoEntity ticket = new TicketInfoEntity();
-                        ticket.setTrainName(departureInfo.getTrainName());
-                        ticket.setStartPlace(departure);
-                        ticket.setEndPlace(destination);
-                        ticket.setStartTime(departureInfo.getStartTime());
-                        ticket.setEndTime(arrivalInfo.getArriveTime());
-
-                        // Determine the type of ticket
-                        ticket.setTicketType(studentEntity.getAddress().contains(destination) ?
-                                "Student Ticket" : "Adult Ticket");
-
-                        // Calculate price
-                        float price = arrivalInfo.getFare() - departureInfo.getFare() + 13.5f;
-                        ticket.setFare(price);
-
-                        // Calculation of remaining tickets
-                        int availableSeats = 300; // Initial seating capacity
-                        for (OrdersEntity order : allOrders) {
-                            if (order.getTrainName().equals(ticket.getTrainName()) &&
-                                    order.getStartPlace().equals(departure) &&
-                                    order.getEndPlace().equals(destination)) {
-                                availableSeats = Math.min(availableSeats, order.getRemainTickets());
-                            }
-                        }
-                        ticket.setRemainTickets(availableSeats);
-
-                        ticketData.add(ticket);
-                    }
+        for (TicketEntity ticket : DBHelper.getAllTickets()) {
+            if (ticket.getSubmittedBy().equals(studentEntity.getName())) {
+                if ("Resolved".equals(ticket.getStatus()) || "Closed".equals(ticket.getStatus())) {
+                    resolvedTicketData.add(ticket);
+                } else {
+                    activeTicketData.add(ticket);
                 }
             }
         }
     }
+    private HBox createTopButtonBar() {
+        Button editProfileButton = new Button("Edit Profile");
+        editProfileButton.getStyleClass().add("button-blue");
+        editProfileButton.setOnAction(e -> showEditProfileDialog());
 
-    private void loadUserOrders() {
-        ticketData.clear();
-        List<OrdersEntity> userOrders = DBHelper.getOrdersByName(studentEntity.getName());
-
-        for (OrdersEntity order : userOrders) {
-            TicketInfoEntity ticket = new TicketInfoEntity();
-            ticket.setOrderNum(order.getOrderNum());
-            ticket.setTrainName(order.getTrainName());
-            ticket.setStartPlace(order.getStartPlace());
-            ticket.setEndPlace(order.getEndPlace());
-            ticket.setStartTime(order.getStartTime());
-            ticket.setEndTime(order.getEndTime());
-            ticket.setTicketType(order.getTicketType());
-            ticket.setRemainTickets(order.getRemainTickets());
-            ticket.setFare(order.getFare());
-            ticketData.add(ticket);
-        }
+        HBox buttonBar = new HBox(10, editProfileButton);
+        buttonBar.setAlignment(Pos.CENTER_RIGHT);
+        buttonBar.setPadding(new Insets(0, 15, 10, 0));
+        return buttonBar;
     }
+    private void showEditProfileDialog() {
+        Dialog<StudentEntity> dialog = new Dialog<>();
+        dialog.setTitle("Edit Profile");
+        dialog.setHeaderText("Update your personal information");
 
-    private void bookSelectedTickets() {
-        for (TicketInfoEntity ticket : ticketData) {
-            if (ticket.getIsIsSelected()) {
-                // Create an order
-                OrdersEntity order = new OrdersEntity();
-                order.setOrderNum(generateOrderNumber());
-                order.setName(studentEntity.getName());
-                order.setTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                order.setIspaid("No");
-                order.setTrainName(ticket.getTrainName());
-                order.setStartPlace(ticket.getStartPlace());
-                order.setEndPlace(ticket.getEndPlace());
-                order.setStartTime(ticket.getStartTime());
-                order.setEndTime(ticket.getEndTime());
-                order.setTicketType(ticket.getTicketType());
-                order.setRemainTickets(ticket.getRemainTickets() - 1);
-                order.setFare(ticket.getFare());
+        // 创建表单
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
 
-                // Save Order
-                DBHelper.addOrder(order);
+        // 只读字段
+        TextField idField = new TextField(studentEntity.getStudentId());
+        idField.setEditable(false);
+        idField.setDisable(true);
 
-                // Updated Remaining Tickets
-                ticket.setRemainTickets(order.getRemainTickets());
+        // 可编辑字段
+        TextField nameField = new TextField(studentEntity.getName());
+        TextField sexField = new TextField(studentEntity.getSex());
+        TextField ageField = new TextField(String.valueOf(studentEntity.getAge()));
+        TextField universityField = new TextField(studentEntity.getUniversity());
+        TextField facultyField = new TextField(studentEntity.getFaculty());
+        TextField professionField = new TextField(studentEntity.getProfession());
+        TextField phoneField = new TextField(studentEntity.getPhoneNum());
+        TextField addressField = new TextField(studentEntity.getAddress());
+
+        // 密码字段
+        PasswordField passwordField = new PasswordField();
+        passwordField.setPromptText("Leave blank to keep current password");
+
+        grid.add(new Label("Student ID:"), 0, 0);
+        grid.add(idField, 1, 0);
+        grid.add(new Label("Name:"), 0, 1);
+        grid.add(nameField, 1, 1);
+        grid.add(new Label("Gender:"), 0, 2);
+        grid.add(sexField, 1, 2);
+        grid.add(new Label("Age:"), 0, 3);
+        grid.add(ageField, 1, 3);
+        grid.add(new Label("Password:"), 0, 4);
+        grid.add(passwordField, 1, 4);
+        grid.add(new Label("University:"), 0, 5);
+        grid.add(universityField, 1, 5);
+        grid.add(new Label("Faculty:"), 0, 6);
+        grid.add(facultyField, 1, 6);
+        grid.add(new Label("Profession:"), 0, 7);
+        grid.add(professionField, 1, 7);
+        grid.add(new Label("Phone:"), 0, 8);
+        grid.add(phoneField, 1, 8);
+        grid.add(new Label("Address:"), 0, 9);
+        grid.add(addressField, 1, 9);
+
+        dialog.getDialogPane().setContent(grid);
+
+        // 添加按钮
+        ButtonType saveButton = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButton, ButtonType.CANCEL);
+
+        // 结果转换器
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButton) {
+                try {
+                    // 创建更新后的学生对象
+                    StudentEntity updatedStudent = new StudentEntity();
+                    updatedStudent.setStudentId(studentEntity.getStudentId()); // 学号不变
+                    updatedStudent.setName(nameField.getText());
+                    updatedStudent.setSex(sexField.getText());
+
+                    // 如果密码字段不为空，则更新密码
+                    if (!passwordField.getText().isEmpty()) {
+                        updatedStudent.setPassword(passwordField.getText());
+                    } else {
+                        updatedStudent.setPassword(studentEntity.getPassword());
+                    }
+
+                    updatedStudent.setAge(Integer.parseInt(ageField.getText()));
+                    updatedStudent.setUniversity(universityField.getText());
+                    updatedStudent.setFaculty(facultyField.getText());
+                    updatedStudent.setProfession(professionField.getText());
+                    updatedStudent.setPhoneNum(phoneField.getText());
+                    updatedStudent.setAddress(addressField.getText());
+
+                    return updatedStudent;
+                } catch (NumberFormatException e) {
+                    new Alert(Alert.AlertType.ERROR, "Invalid age format").show();
+                    return null;
+                }
             }
-        }
-        tableView.refresh();
-    }
+            return null;
+        });
+        // 处理结果
+        dialog.showAndWait().ifPresent(updatedStudent -> {
+            // 更新数据库中的学生信息
+            DBHelper.updateStudent(studentEntity, updatedStudent);
 
-    private void cancelSelectedTickets() {
-        List<TicketInfoEntity> toRemove = new ArrayList<>();
-        for (TicketInfoEntity ticket : ticketData) {
-            if (ticket.getIsIsSelected() && ticket.getOrderNum() != null) {
-                DBHelper.removeOrder(ticket.getOrderNum());
-                toRemove.add(ticket);
-            }
-        }
-        ticketData.removeAll(toRemove);
-    }
+            // 更新当前学生实体
+            studentEntity.setName(updatedStudent.getName());
+            studentEntity.setSex(updatedStudent.getSex());
+            studentEntity.setPassword(updatedStudent.getPassword());
+            studentEntity.setAge(updatedStudent.getAge());
+            studentEntity.setUniversity(updatedStudent.getUniversity());
+            studentEntity.setFaculty(updatedStudent.getFaculty());
+            studentEntity.setProfession(updatedStudent.getProfession());
+            studentEntity.setPhoneNum(updatedStudent.getPhoneNum());
+            studentEntity.setAddress(updatedStudent.getAddress());
 
-    private String generateOrderNumber() {
-        return "ORD" + System.currentTimeMillis();
+            // 更新窗口标题
+            Stage stage = (Stage) activeTicketTable.getScene().getWindow();
+            stage.setTitle("Support Ticket System - " + studentEntity.getName());
+
+            new Alert(Alert.AlertType.INFORMATION, "Profile updated successfully").show();
+        });
     }
 }
