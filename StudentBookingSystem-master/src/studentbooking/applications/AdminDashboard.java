@@ -80,9 +80,9 @@ public class AdminDashboard extends Application {
         // 设置表格列
         setupTicketTable();
 
+        // 修复：使用成员变量而不是局部变量
         operatorCombo = new ComboBox<>();
         operatorCombo.setPrefWidth(150);
-
 
         // 刷新按钮
         Button refreshButton = new Button("Refresh Tickets");
@@ -94,13 +94,12 @@ public class AdminDashboard extends Application {
         assignBox.setPadding(new Insets(0, 10, 10, 10));
 
         Label assignLabel = new Label("Assign to:");
-        ComboBox<String> operatorCombo = new ComboBox<>();
-        operatorCombo.setPrefWidth(150);
-
-        refreshOperatorCombo();
+        // 修复：使用成员变量而不是局部变量
+        // ComboBox<String> operatorCombo = new ComboBox<>(); // 删除这行
+        // operatorCombo.setPrefWidth(150); // 删除这行
 
         // 加载操作员列表
-        operatorCombo.getItems().addAll(DBHelper.getAllOperatorNames());
+        refreshOperatorCombo(); // 直接调用刷新方法
 
         Button assignButton = new Button("Assign Ticket");
         assignButton.setOnAction(e -> assignTicketToOperator(operatorCombo.getValue()));
@@ -469,7 +468,9 @@ public class AdminDashboard extends Application {
         dialog.showAndWait().ifPresent(operator -> {
             DBHelper.addOperator(operator);
             loadOperatorData(); // 刷新操作员表格
-            refreshOperatorCombo(); // 刷新下拉框
+
+            // 修复：添加下拉框刷新
+            refreshOperatorCombo();
             new Alert(Alert.AlertType.INFORMATION, "Operator added successfully").show();
         });
     }
@@ -499,7 +500,9 @@ public class AdminDashboard extends Application {
                 if (response == ButtonType.OK) {
                     DBHelper.deleteOperator(selected.getAccount());
                     loadOperatorData(); // 刷新操作员表格
-                    refreshOperatorCombo(); // 刷新下拉框
+
+                    // 修复：添加下拉框刷新
+                    refreshOperatorCombo();
                     new Alert(Alert.AlertType.INFORMATION, "Operator deleted successfully").show();
                 }
             });
