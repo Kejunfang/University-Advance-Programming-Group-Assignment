@@ -13,6 +13,15 @@ public class OperatorEntity {
     private String sex;
     private String phoneNum;
 
+    public OperatorEntity() {}
+    public OperatorEntity(int account, String password, String name, String sex, String phoneNum) {
+        this.account = account;
+        this.password = password;
+        this.name = name;
+        this.sex = sex;
+        this.phoneNum = phoneNum;
+    }
+
 
     public int getAccount() {
         return account;

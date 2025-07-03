@@ -252,20 +252,22 @@ public class DBHelper {
     public static List<OperatorEntity> getAllOperators() {
         List<OperatorEntity> operators = new ArrayList<>();
         List<String[]> records = readAllRecords(OPERATOR_FILE);
+
         for (String[] fields : records) {
             if (fields.length < 2) continue;
-            OperatorEntity operator = new OperatorEntity();
+
             try {
-                operator.setAccount(Integer.parseInt(fields[0]));
+                OperatorEntity operator = new OperatorEntity();
+                operator.setAccount(Integer.parseInt(fields[0].trim()));
+                operator.setPassword(fields[1].trim());
+                operator.setName(fields.length > 2 ? fields[2].trim() : "");
+                operator.setSex(fields.length > 3 ? fields[3].trim() : "");
+                operator.setPhoneNum(fields.length > 4 ? fields[4].trim() : "");
+
+                operators.add(operator);
             } catch (NumberFormatException e) {
-                System.err.println("Invalid account format: " + fields[0]);
-                continue;
+                System.err.println("Skipping invalid operator record: " + Arrays.toString(fields));
             }
-            operator.setPassword(fields[1]);
-            operator.setName(fields.length > 2 ? fields[2] : "");
-            operator.setSex(fields.length > 3 ? fields[3] : "");
-            operator.setPhoneNum(fields.length > 4 ? fields[4] : "");
-            operators.add(operator);
         }
         return operators;
     }
@@ -407,5 +409,34 @@ public class DBHelper {
 
     public static String generateTicketId() {
         return "TKT" + System.currentTimeMillis();
+    }
+
+    public static void addOperator(OperatorEntity operator) {
+        String data = String.join(",",
+                String.valueOf(operator.getAccount()),
+                operator.getPassword(),
+                operator.getName(),
+                operator.getSex(),
+                operator.getPhoneNum()
+        );
+        appendRecord(OPERATOR_FILE, data);
+    }
+    // 删除操作员
+    public static void deleteOperator(int account) {
+        List<OperatorEntity> operators = getAllOperators();
+        List<String> updatedData = new ArrayList<>();
+
+        for (OperatorEntity operator : operators) {
+            if (operator.getAccount() != account) {
+                updatedData.add(String.join(",",
+                        String.valueOf(operator.getAccount()),
+                        operator.getPassword(),
+                        operator.getName(),
+                        operator.getSex(),
+                        operator.getPhoneNum()
+                ));
+            }
+        }
+        writeAllRecords(OPERATOR_FILE, updatedData);
     }
 }

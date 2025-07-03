@@ -29,6 +29,8 @@ public class AdminDashboard extends Application {
     private final ObservableList<StudentEntity> studentData = FXCollections.observableArrayList();
     private final ObservableList<OperatorEntity> operatorData = FXCollections.observableArrayList();
 
+    private ComboBox<String> operatorCombo;
+
     @Override
     public void start(Stage stage) {
         TabPane tabPane = new TabPane();
@@ -78,6 +80,10 @@ public class AdminDashboard extends Application {
         // 设置表格列
         setupTicketTable();
 
+        operatorCombo = new ComboBox<>();
+        operatorCombo.setPrefWidth(150);
+
+
         // 刷新按钮
         Button refreshButton = new Button("Refresh Tickets");
         refreshButton.setOnAction(e -> loadTicketData());
@@ -90,6 +96,8 @@ public class AdminDashboard extends Application {
         Label assignLabel = new Label("Assign to:");
         ComboBox<String> operatorCombo = new ComboBox<>();
         operatorCombo.setPrefWidth(150);
+
+        refreshOperatorCombo();
 
         // 加载操作员列表
         operatorCombo.getItems().addAll(DBHelper.getAllOperatorNames());
@@ -110,22 +118,25 @@ public class AdminDashboard extends Application {
         return vbox;
     }
 
+    // 添加刷新操作员下拉框的方法
+    private void refreshOperatorCombo() {
+        operatorCombo.getItems().clear();
+        operatorCombo.getItems().addAll(DBHelper.getAllOperatorNames());
+    }
+
+
     // 将选中的工单分配给操作员
     // 将选中的工单分配给操作员
 // 将选中的工单分配给操作员
     private void assignTicketToOperator(String operatorName) {
         TicketEntity selectedTicket = ticketTable.getSelectionModel().getSelectedItem();
         if (selectedTicket != null && operatorName != null && !operatorName.isEmpty()) {
-            // 只更新分配人和状态，不修改备注
             selectedTicket.setAssignedTo(operatorName);
             selectedTicket.setStatus("Assigned");
-
-            // 更新时间戳
             selectedTicket.setLastUpdated(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 
-            DBHelper.updateTicket(selectedTicket);
+            DBHelper.updateTicket(selectedTicket); // 确保调用更新方法
 
-            // 刷新表格
             ticketTable.refresh();
             new Alert(Alert.AlertType.INFORMATION, "Ticket assigned to " + operatorName).show();
         } else {
@@ -277,8 +288,10 @@ public class AdminDashboard extends Application {
     private void loadAllData() {
         loadTicketData();
         loadStudentData();
-        loadOperatorData();
+        loadOperatorData(); // 确保调用这个方法
     }
+
+
 
     private void loadTicketData() {
         List<TicketEntity> allTickets = DBHelper.getAllTickets();
@@ -296,7 +309,13 @@ public class AdminDashboard extends Application {
     }
 
     private void loadOperatorData() {
-        operatorData.setAll(DBHelper.getAllOperators());
+        System.out.println("Loading operator data...");
+        List<OperatorEntity> operators = DBHelper.getAllOperators();
+        System.out.println("Found " + operators.size() + " operators");
+        operatorData.setAll(operators);
+
+        // 同时刷新下拉框
+        refreshOperatorCombo();
     }
 
     // 添加用户对话框
@@ -374,9 +393,11 @@ public class AdminDashboard extends Application {
         });
 
         // 处理结果
-        dialog.showAndWait().ifPresent(student -> {
-            DBHelper.addStudent(student);
-            loadStudentData();
+        // 处理结果
+        dialog.showAndWait().ifPresent(student -> {  // 这里应该是 student，不是 operator
+            DBHelper.addStudent(student);  // 改为添加学生
+            loadStudentData();  // 刷新学生表格
+            new Alert(Alert.AlertType.INFORMATION, "Student added successfully").show();
         });
     }
 
@@ -396,9 +417,9 @@ public class AdminDashboard extends Application {
         TextField nameField = new TextField();
         TextField sexField = new TextField();
         TextField phoneField = new TextField();
-        TextField passwordField = new TextField();
+        TextField passwordField = new PasswordField(); // 改为密码字段
 
-        grid.add(new Label("Account:"), 0, 0);
+        grid.add(new Label("Account (Number):"), 0, 0);
         grid.add(accountField, 1, 0);
         grid.add(new Label("Password:"), 0, 1);
         grid.add(passwordField, 1, 1);
@@ -415,30 +436,41 @@ public class AdminDashboard extends Application {
         ButtonType addButton = new ButtonType("Add", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(addButton, ButtonType.CANCEL);
 
-        // 结果转换器
+        // 结果转换器 - 修复验证逻辑
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == addButton) {
                 try {
+                    // 验证必填字段
+                    if (accountField.getText().isEmpty() ||
+                            passwordField.getText().isEmpty() ||
+                            nameField.getText().isEmpty()) {
+
+                        new Alert(Alert.AlertType.ERROR, "Account, Password and Name are required").show();
+                        return null;
+                    }
+
                     OperatorEntity operator = new OperatorEntity();
                     operator.setAccount(Integer.parseInt(accountField.getText()));
                     operator.setPassword(passwordField.getText());
                     operator.setName(nameField.getText());
-                    operator.setSex(sexField.getText());
-                    operator.setPhoneNum(phoneField.getText());
+                    operator.setSex(sexField.getText().isEmpty() ? "Unknown" : sexField.getText());
+                    operator.setPhoneNum(phoneField.getText().isEmpty() ? "N/A" : phoneField.getText());
+
                     return operator;
                 } catch (NumberFormatException e) {
-                    new Alert(Alert.AlertType.ERROR, "Invalid account format").show();
+                    new Alert(Alert.AlertType.ERROR, "Account must be a number").show();
                     return null;
                 }
             }
             return null;
         });
 
-        // 处理结果
+        // 处理结果 - 添加实际保存逻辑
         dialog.showAndWait().ifPresent(operator -> {
-            // 这里需要添加将操作员保存到数据库的方法
-            // DBHelper.addOperator(operator); // 需要先实现这个方法
-            loadOperatorData();
+            DBHelper.addOperator(operator);
+            loadOperatorData(); // 刷新操作员表格
+            refreshOperatorCombo(); // 刷新下拉框
+            new Alert(Alert.AlertType.INFORMATION, "Operator added successfully").show();
         });
     }
 
@@ -457,11 +489,24 @@ public class AdminDashboard extends Application {
     private void deleteSelectedOperator() {
         OperatorEntity selected = operatorTable.getSelectionModel().getSelectedItem();
         if (selected != null) {
-            // 这里需要添加从数据库删除操作员的方法
-            // DBHelper.deleteOperator(selected.getAccount()); // 需要先实现这个方法
-            loadOperatorData();
+            // 确认对话框
+            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+            confirm.setTitle("Confirm Deletion");
+            confirm.setHeaderText("Delete Operator");
+            confirm.setContentText("Are you sure you want to delete operator: " + selected.getName() + "?");
+
+            confirm.showAndWait().ifPresent(response -> {
+                if (response == ButtonType.OK) {
+                    DBHelper.deleteOperator(selected.getAccount());
+                    loadOperatorData(); // 刷新操作员表格
+                    refreshOperatorCombo(); // 刷新下拉框
+                    new Alert(Alert.AlertType.INFORMATION, "Operator deleted successfully").show();
+                }
+            });
         } else {
             new Alert(Alert.AlertType.WARNING, "Please select an operator to delete").show();
         }
     }
+
+
 }
