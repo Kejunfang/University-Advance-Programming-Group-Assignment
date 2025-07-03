@@ -1,1 +1,2 @@
-TKT1751502687912,Test1,Let me try write something,Assigned,Hill,Operator Three,,2025-07-03 08:31:27,2025-07-03 08:43:22
+TKT1751502687912,Test1,Let me try write something,Closed,Hill,Operator Three,i have solve, thank you for your explain,2025-07-03 10:52:40
+TKT1751511190052,Test,i want to ask something about blablablla,New,Hill,,,2025-07-03 10:53:10,2025-07-03 10:53:10

@@ -110,7 +110,7 @@ public class SelectTicket extends Application {
         loadUserTickets();
 
         // 增大窗口尺寸以显示更大的表格
-        Scene scene = new Scene(mainLayout, 1000, 800);
+        Scene scene = new Scene(mainLayout, 1200, 900); // 增加窗口尺寸
         scene.getStylesheets().add(getClass().getResource("/studentbooking/css/button.css").toExternalForm());
         stage.setScene(scene);
         stage.setTitle("Support Ticket System - " + studentEntity.getName());
@@ -118,9 +118,10 @@ public class SelectTicket extends Application {
     }
 
     private void setupActiveTicketTable() {
-        activeTicketTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        // 使用可调整列宽策略
+        activeTicketTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
         activeTicketTable.setMinHeight(200);
-        activeTicketTable.setPrefHeight(250);
+        activeTicketTable.setPrefHeight(300); // 增加表格高度
 
         TableColumn<TicketEntity, String> idCol = new TableColumn<>("Ticket ID");
         idCol.setCellValueFactory(new PropertyValueFactory<>("ticketId"));
@@ -142,19 +143,20 @@ public class SelectTicket extends Application {
         updatedCol.setCellValueFactory(new PropertyValueFactory<>("lastUpdated"));
         updatedCol.setMinWidth(150);
 
-        // 添加操作员备注列
+        // 添加操作员备注列 - 增加宽度
         TableColumn<TicketEntity, String> notesCol = new TableColumn<>("Operator Notes");
         notesCol.setCellValueFactory(new PropertyValueFactory<>("notes"));
-        notesCol.setMinWidth(250);
+        notesCol.setMinWidth(400); // 增加备注列宽度
 
         activeTicketTable.getColumns().addAll(idCol, typeCol, statusCol, createdCol, updatedCol, notesCol);
         activeTicketTable.setItems(activeTicketData);
     }
 
     private void setupResolvedTicketTable() {
-        resolvedTicketTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        // 使用可调整列宽策略
+        resolvedTicketTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
         resolvedTicketTable.setMinHeight(200);
-        resolvedTicketTable.setPrefHeight(250);
+        resolvedTicketTable.setPrefHeight(300); // 增加表格高度
 
         TableColumn<TicketEntity, String> idCol = new TableColumn<>("Ticket ID");
         idCol.setCellValueFactory(new PropertyValueFactory<>("ticketId"));
@@ -176,10 +178,10 @@ public class SelectTicket extends Application {
         updatedCol.setCellValueFactory(new PropertyValueFactory<>("lastUpdated"));
         updatedCol.setMinWidth(150);
 
-        // 添加操作员备注列
+        // 添加操作员备注列 - 增加宽度
         TableColumn<TicketEntity, String> notesCol = new TableColumn<>("Operator Notes");
         notesCol.setCellValueFactory(new PropertyValueFactory<>("notes"));
-        notesCol.setMinWidth(250);
+        notesCol.setMinWidth(400); // 增加备注列宽度
 
         resolvedTicketTable.getColumns().addAll(idCol, typeCol, statusCol, createdCol, updatedCol, notesCol);
         resolvedTicketTable.setItems(resolvedTicketData);

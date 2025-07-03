@@ -52,3 +52,8 @@
     -fx-background-color: #2577e3; /* 蓝色背景 */
     -fx-padding: 5 15;
 }
+
+/* 在button.css中添加 */
+.table-cell {
+    -fx-wrap-text: true;
+}
