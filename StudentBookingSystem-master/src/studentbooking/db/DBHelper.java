@@ -24,7 +24,7 @@ public class DBHelper {
         createFileIfNotExists(OPERATOR_FILE);
         createFileIfNotExists(TICKETS_FILE);
 
-        // 只初始化管理员数据
+        // Initialize administrator data only
         if (isFileEmpty(OPERATOR_FILE)) {
             System.out.println("Initializing operator data...");
             List<String> operatorData = Arrays.asList(
@@ -33,7 +33,7 @@ public class DBHelper {
             writeAllRecords(OPERATOR_FILE, operatorData);
         }
 
-        // 不再初始化学生和工单数据
+        // No longer initializing student and work order data
     }
 
     private static void createDirectory(String dirPath) {
@@ -130,7 +130,7 @@ public class DBHelper {
         for (String[] fields : students) {
             System.out.println("Checking record: " + Arrays.toString(fields));
 
-            // 确保有足够字段（至少5个：姓名,性别,密码,年龄,学号）
+            // Make sure there are enough fields (at least 5: name, gender, password, age, school number)
             if (fields.length < 5) {
                 System.out.println("Skipping invalid student record (insufficient fields)");
                 continue;
@@ -141,7 +141,7 @@ public class DBHelper {
             String recordId = fields[4].trim();
             String recordPwd = fields[2].trim();
 
-            // 匹配学号或姓名
+            // Match student number or name
             if (recordId.equals(identifier.trim()) ){
                 match = true;
                 System.out.println("Matched by student ID: " + identifier);
@@ -150,7 +150,7 @@ public class DBHelper {
                 System.out.println("Matched by name: " + identifier);
             }
 
-            // 验证密码
+            // Verify Password
             if (match && recordPwd.equals(password.trim())) {
                 StudentEntity student = new StudentEntity();
                 student.setName(recordName);
@@ -164,7 +164,7 @@ public class DBHelper {
                 }
 
                 student.setStudentId(recordId);
-                // 防止数组越界
+                // Preventing array out-of-bounds
                 student.setUniversity(fields.length > 5 ? fields[5] : "");
                 student.setFaculty(fields.length > 6 ? fields[6] : "");
                 student.setProfession(fields.length > 7 ? fields[7] : "");
@@ -179,7 +179,7 @@ public class DBHelper {
         return null;
     }
 
-    // 获取所有学生
+    // Access to all students
     public static List<StudentEntity> getAllStudents() {
         List<StudentEntity> students = new ArrayList<>();
         List<String[]> records = readAllRecords(STUDENT_FILE);
@@ -207,7 +207,7 @@ public class DBHelper {
         return students;
     }
 
-    // 添加学生
+    // Add Student
     public static void addStudent(StudentEntity student) {
         String data = String.join(",",
                 student.getName(),
@@ -224,7 +224,7 @@ public class DBHelper {
         appendRecord(STUDENT_FILE, data);
     }
 
-    // 删除学生
+    // Delete Student
     public static void deleteStudent(String name) {
         List<StudentEntity> students = getAllStudents();
         List<String> updatedData = new ArrayList<>();
@@ -248,7 +248,7 @@ public class DBHelper {
         writeAllRecords(STUDENT_FILE, updatedData);
     }
 
-    // 获取所有操作员
+    // Get all operators
     public static List<OperatorEntity> getAllOperators() {
         List<OperatorEntity> operators = new ArrayList<>();
         List<String[]> records = readAllRecords(OPERATOR_FILE);
@@ -272,13 +272,13 @@ public class DBHelper {
         return operators;
     }
 
-    // 获取所有操作员名字
-    public static List<String> getAllOperatorNames() {
-        List<String> names = new ArrayList<>();
+    // Get all operator Ids
+    public static List<String> getAllOperatorIds() {
+        List<String> ids = new ArrayList<>();
         for (OperatorEntity operator : getAllOperators()) {
-            names.add(operator.getName());
+            ids.add(String.valueOf(operator.getAccount()));
         }
-        return names;
+        return ids;
     }
 
     public static List<TicketEntity> getAllTickets() {
@@ -287,7 +287,7 @@ public class DBHelper {
         for (String[] fields : records) {
             if (fields.length < 9) continue;
 
-            // 检查工单状态，如果是"Closed"则跳过
+            // Check the status of the work order, if it is “Closed” then skip it.
             String status = fields[3].trim();
             if ("Closed".equals(status)) {
                 continue;
@@ -308,7 +308,7 @@ public class DBHelper {
         return tickets;
     }
 
-    // 修改addTicket方法
+    // Modify the addTicket method
     public static void addTicket(TicketEntity ticket) {
         String data = String.join(",",
                 ticket.getTicketId(),
@@ -330,7 +330,7 @@ public class DBHelper {
 
         for (TicketEntity ticket : tickets) {
             if (ticket.getTicketId().equals(updatedTicket.getTicketId())) {
-                // 使用更新后的工单数据（备注已被替换）
+                // Use of updated work order data (notes have been replaced)
                 updatedData.add(String.join(",",
                         updatedTicket.getTicketId(),
                         updatedTicket.getIssueType(),
@@ -338,12 +338,12 @@ public class DBHelper {
                         updatedTicket.getStatus(),
                         updatedTicket.getSubmittedBy(),
                         updatedTicket.getAssignedTo(),
-                        updatedTicket.getNotes(), // 这里是更新后的备注
+                        updatedTicket.getNotes(), // Here are the updated notes
                         updatedTicket.getCreatedTime(),
                         updatedTicket.getLastUpdated()
                 ));
             } else {
-                // 其他工单保持不变
+                // Other work orders remain unchanged
                 updatedData.add(String.join(",",
                         ticket.getTicketId(),
                         ticket.getIssueType(),
@@ -379,7 +379,7 @@ public class DBHelper {
         writeAllRecords(TICKETS_FILE, data);
     }
 
-    // 修复 findOperator 方法
+    // Fix the findOperator method
     public static OperatorEntity findOperator(String accountInput, String password) {
         List<String[]> operators = readAllRecords(OPERATOR_FILE);
         for (String[] fields : operators) {
@@ -394,7 +394,7 @@ public class DBHelper {
                     try {
                         operator.setAccount(Integer.parseInt(recordAccount));
                     } catch (NumberFormatException e) {
-                        continue; // 跳过无效账号
+                        continue; // Skip Invalid Accounts
                     }
                     operator.setPassword(recordPwd);
                     operator.setName(fields.length > 2 ? fields[2] : "");
@@ -421,7 +421,7 @@ public class DBHelper {
         );
         appendRecord(OPERATOR_FILE, data);
     }
-    // 删除操作员
+    // Delete Operator
     public static void deleteOperator(int account) {
         List<OperatorEntity> operators = getAllOperators();
         List<String> updatedData = new ArrayList<>();
@@ -461,7 +461,7 @@ public class DBHelper {
         student.setStudentId(identifier);
         student.setPassword(password);
 
-        // 设置默认值
+        // Setting default values
         student.setSex("");
         student.setAge(0);
         student.setUniversity("");
@@ -470,7 +470,7 @@ public class DBHelper {
         student.setPhoneNum("");
         student.setAddress("");
 
-        // 添加到文件
+        // Add to file
         addStudent(student);
     }
     public static void updateStudent(StudentEntity oldStudent, StudentEntity newStudent) {
@@ -479,7 +479,7 @@ public class DBHelper {
 
         for (StudentEntity student : students) {
             if (student.getStudentId().equals(oldStudent.getStudentId())) {
-                // 替换为更新后的学生信息
+                // Replace it with updated student information
                 updatedData.add(String.join(",",
                         newStudent.getName(),
                         newStudent.getSex(),
@@ -493,7 +493,7 @@ public class DBHelper {
                         newStudent.getAddress()
                 ));
             } else {
-                // 保持原样
+                // preserve the original shape
                 updatedData.add(String.join(",",
                         student.getName(),
                         student.getSex(),

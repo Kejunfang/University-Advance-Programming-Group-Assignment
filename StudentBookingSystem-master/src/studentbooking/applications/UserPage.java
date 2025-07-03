@@ -14,7 +14,7 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
-public class SelectTicket extends Application {
+public class UserPage extends Application {
 
     private StudentEntity studentEntity;
     private TableView<TicketEntity> activeTicketTable = new TableView<>();
@@ -22,7 +22,7 @@ public class SelectTicket extends Application {
     private final ObservableList<TicketEntity> activeTicketData = FXCollections.observableArrayList();
     private final ObservableList<TicketEntity> resolvedTicketData = FXCollections.observableArrayList();
 
-    public SelectTicket(StudentEntity studentEntity) {
+    public UserPage(StudentEntity studentEntity) {
         this.studentEntity = studentEntity;
     }
 
@@ -30,7 +30,7 @@ public class SelectTicket extends Application {
     public void start(Stage stage) {
         BorderPane mainLayout = new BorderPane();
 
-        // 顶部标题
+        // top headline
         HBox topBar = new HBox();
         topBar.setPadding(new Insets(15));
         topBar.setAlignment(Pos.CENTER);
@@ -41,14 +41,14 @@ public class SelectTicket extends Application {
 
         HBox buttonBar = createTopButtonBar();
 
-        // 添加弹簧将按钮推到右边
+        // Adding a spring pushes the button to the right
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         topBar.getChildren().addAll(title, spacer, buttonBar);
         mainLayout.setTop(topBar);
 
-        // 左侧面板 - 创建新工单
+        // Left Panel - Create a New Work Order
         VBox leftPanel = new VBox(10);
         leftPanel.setPadding(new Insets(15));
         leftPanel.setPrefWidth(300);
@@ -82,18 +82,18 @@ public class SelectTicket extends Application {
         leftPanel.getChildren().addAll(newTicketLabel, issueTypeField, descriptionArea, submitButton);
         mainLayout.setLeft(leftPanel);
 
-        // 中央面板 - 两个工单表格
+        // Central panel - two work order forms
         VBox centerBox = new VBox(15);
         centerBox.setPadding(new Insets(15));
 
-        // 活动工单表格
+        // Activity Work Order Form
         Label activeTicketsLabel = new Label("Active Tickets");
         activeTicketsLabel.setFont(Font.font(18));
         setupActiveTicketTable();
         VBox activeBox = new VBox(5, activeTicketsLabel, activeTicketTable);
         activeBox.setPadding(new Insets(0, 0, 10, 0));
 
-        // 已解决工单表格
+        // Resolved Work Order Form
         Label resolvedTicketsLabel = new Label("Resolved Tickets");
         resolvedTicketsLabel.setFont(Font.font(18));
         setupResolvedTicketTable();
@@ -103,7 +103,7 @@ public class SelectTicket extends Application {
         centerBox.getChildren().addAll(activeBox, resolvedBox);
         mainLayout.setCenter(centerBox);
 
-        // 底部注销按钮
+        // Logout button at the bottom
         Button logoutButton = new Button("Logout");
         logoutButton.getStyleClass().add("button5");
         logoutButton.setOnAction(e -> {
@@ -116,11 +116,11 @@ public class SelectTicket extends Application {
         bottomBox.setPadding(new Insets(10));
         mainLayout.setBottom(bottomBox);
 
-        // 加载用户工单
+        // Loading User Work Orders
         loadUserTickets();
 
-        // 增大窗口尺寸以显示更大的表格
-        Scene scene = new Scene(mainLayout, 1200, 900); // 增加窗口尺寸
+        // Increase window size to display larger tables
+        Scene scene = new Scene(mainLayout, 1200, 900); // Increase window size
         scene.getStylesheets().add(getClass().getResource("/studentbooking/css/button.css").toExternalForm());
         stage.setScene(scene);
         stage.setTitle("Support Ticket System - " + studentEntity.getName());
@@ -128,10 +128,10 @@ public class SelectTicket extends Application {
     }
 
     private void setupActiveTicketTable() {
-        // 使用可调整列宽策略
+        // Using the Adjustable Column Width Policy
         activeTicketTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
         activeTicketTable.setMinHeight(200);
-        activeTicketTable.setPrefHeight(300); // 增加表格高度
+        activeTicketTable.setPrefHeight(300); // cIncrease table height
 
         TableColumn<TicketEntity, String> idCol = new TableColumn<>("Ticket ID");
         idCol.setCellValueFactory(new PropertyValueFactory<>("ticketId"));
@@ -153,20 +153,20 @@ public class SelectTicket extends Application {
         updatedCol.setCellValueFactory(new PropertyValueFactory<>("lastUpdated"));
         updatedCol.setMinWidth(150);
 
-        // 添加操作员备注列 - 增加宽度
+        // Add Operator Notes Column - Increase Width
         TableColumn<TicketEntity, String> notesCol = new TableColumn<>("Operator Notes");
         notesCol.setCellValueFactory(new PropertyValueFactory<>("notes"));
-        notesCol.setMinWidth(400); // 增加备注列宽度
+        notesCol.setMinWidth(400); // Increase the width of the Notes column
 
         activeTicketTable.getColumns().addAll(idCol, typeCol, statusCol, createdCol, updatedCol, notesCol);
         activeTicketTable.setItems(activeTicketData);
     }
 
     private void setupResolvedTicketTable() {
-        // 使用可调整列宽策略
+        // Using the Adjustable Column Width Policy
         resolvedTicketTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
         resolvedTicketTable.setMinHeight(200);
-        resolvedTicketTable.setPrefHeight(300); // 增加表格高度
+        resolvedTicketTable.setPrefHeight(300); // cIncrease table height
 
         TableColumn<TicketEntity, String> idCol = new TableColumn<>("Ticket ID");
         idCol.setCellValueFactory(new PropertyValueFactory<>("ticketId"));
@@ -188,10 +188,10 @@ public class SelectTicket extends Application {
         updatedCol.setCellValueFactory(new PropertyValueFactory<>("lastUpdated"));
         updatedCol.setMinWidth(150);
 
-        // 添加操作员备注列 - 增加宽度
+        // Add Operator Notes Column - Increase Width
         TableColumn<TicketEntity, String> notesCol = new TableColumn<>("Operator Notes");
         notesCol.setCellValueFactory(new PropertyValueFactory<>("notes"));
-        notesCol.setMinWidth(400); // 增加备注列宽度
+        notesCol.setMinWidth(400); // cIncrease the width of the Notes column
 
         resolvedTicketTable.getColumns().addAll(idCol, typeCol, statusCol, createdCol, updatedCol, notesCol);
         resolvedTicketTable.setItems(resolvedTicketData);
@@ -226,18 +226,18 @@ public class SelectTicket extends Application {
         dialog.setTitle("Edit Profile");
         dialog.setHeaderText("Update your personal information");
 
-        // 创建表单
+        // Creating Forms
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(20, 150, 10, 10));
 
-        // 只读字段
+        // read-only field
         TextField idField = new TextField(studentEntity.getStudentId());
         idField.setEditable(false);
         idField.setDisable(true);
 
-        // 可编辑字段
+        // Editable fields
         TextField nameField = new TextField(studentEntity.getName());
         TextField sexField = new TextField(studentEntity.getSex());
         TextField ageField = new TextField(String.valueOf(studentEntity.getAge()));
@@ -247,7 +247,7 @@ public class SelectTicket extends Application {
         TextField phoneField = new TextField(studentEntity.getPhoneNum());
         TextField addressField = new TextField(studentEntity.getAddress());
 
-        // 密码字段
+        // Password field
         PasswordField passwordField = new PasswordField();
         passwordField.setPromptText("Leave blank to keep current password");
 
@@ -274,21 +274,21 @@ public class SelectTicket extends Application {
 
         dialog.getDialogPane().setContent(grid);
 
-        // 添加按钮
+        // Add button
         ButtonType saveButton = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(saveButton, ButtonType.CANCEL);
 
-        // 结果转换器
+        // Results Converter
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == saveButton) {
                 try {
-                    // 创建更新后的学生对象
+                    // Creating an Updated Student Object
                     StudentEntity updatedStudent = new StudentEntity();
                     updatedStudent.setStudentId(studentEntity.getStudentId()); // 学号不变
                     updatedStudent.setName(nameField.getText());
                     updatedStudent.setSex(sexField.getText());
 
-                    // 如果密码字段不为空，则更新密码
+                    // If the password field is not empty, update the password
                     if (!passwordField.getText().isEmpty()) {
                         updatedStudent.setPassword(passwordField.getText());
                     } else {
@@ -310,12 +310,12 @@ public class SelectTicket extends Application {
             }
             return null;
         });
-        // 处理结果
+        // Disposal results
         dialog.showAndWait().ifPresent(updatedStudent -> {
-            // 更新数据库中的学生信息
+            // Updating student information in the database
             DBHelper.updateStudent(studentEntity, updatedStudent);
 
-            // 更新当前学生实体
+            // Update current student entities
             studentEntity.setName(updatedStudent.getName());
             studentEntity.setSex(updatedStudent.getSex());
             studentEntity.setPassword(updatedStudent.getPassword());
@@ -326,7 +326,7 @@ public class SelectTicket extends Application {
             studentEntity.setPhoneNum(updatedStudent.getPhoneNum());
             studentEntity.setAddress(updatedStudent.getAddress());
 
-            // 更新窗口标题
+            // Update window title
             Stage stage = (Stage) activeTicketTable.getScene().getWindow();
             stage.setTitle("Support Ticket System - " + studentEntity.getName());
 

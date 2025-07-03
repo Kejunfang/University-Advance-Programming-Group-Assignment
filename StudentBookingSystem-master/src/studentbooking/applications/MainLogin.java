@@ -20,8 +20,6 @@ import studentbooking.bean.OperatorEntity;
 import studentbooking.bean.StudentEntity;
 import studentbooking.db.DBHelper;
 
-import java.util.Arrays;
-
 public class MainLogin extends Application {
 
     @Override
@@ -81,14 +79,14 @@ public class MainLogin extends Application {
                     return;
                 }
 
-// 替换现有的 User 登录逻辑
+// Replacing existing User login logic
                 if (choice.equals("User")) {
-                    // 先检查用户名是否存在
+                    // First, check if the username exists
                     if (!DBHelper.isStudentIdentifierExist(account)) {
-                        // 自动注册新用户
+                        // Automatic registration of new users
                         DBHelper.addStudent(account, password);
 
-                        // 获取新注册的学生
+                        // Getting Newly Enrolled Students
                         StudentEntity newStudent = DBHelper.findStudent(account, password);
 
                         if (newStudent != null) {
@@ -96,11 +94,11 @@ public class MainLogin extends Application {
                                 actiontarget.setFill(Color.GREEN);
                                 actiontarget.setText("Account created and logged in successfully!");
 
-                                // 延迟后进入系统
+                                // Access to the system after a delay
                                 PauseTransition pause = new PauseTransition(Duration.seconds(1));
                                 pause.setOnFinished(event -> {
                                     try {
-                                        SelectTicket userApp = new SelectTicket(newStudent);
+                                        UserPage userApp = new UserPage(newStudent);
                                         primaryStage.close();
                                         userApp.start(new Stage());
                                     } catch (Exception ex) {
@@ -116,11 +114,11 @@ public class MainLogin extends Application {
                             actiontarget.setText("Failed to create new account.");
                         }
                     } else {
-                        // 用户名存在，验证密码
+                        // User name exists, verify password
                         StudentEntity student = DBHelper.findStudent(account, password);
                         if (student != null) {
                             try {
-                                SelectTicket userApp = new SelectTicket(student);
+                                UserPage userApp = new UserPage(student);
                                 primaryStage.close();
                                 userApp.start(new Stage());
                             } catch (Exception ex) {
@@ -135,7 +133,7 @@ public class MainLogin extends Application {
                     OperatorEntity operator = DBHelper.findOperator(account, password);
                     if (operator != null) {
                         try {
-                            SelectTicketForOperator operatorApp = new SelectTicketForOperator(operator);
+                            OperatorPage operatorApp = new OperatorPage(operator);
                             primaryStage.close();
                             operatorApp.start(new Stage());
                         } catch (Exception ex) {
@@ -163,7 +161,7 @@ public class MainLogin extends Application {
         });
 
         Scene scene = new Scene(grid, 400, 320);
-        // 修复CSS路径加载问题
+        // Fix CSS path loading issue
         try {
             scene.getStylesheets().add(getClass().getResource("/button.css").toExternalForm());
         } catch (Exception e) {

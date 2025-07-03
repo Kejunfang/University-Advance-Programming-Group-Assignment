@@ -17,13 +17,13 @@ import javafx.stage.Stage;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class SelectTicketForOperator extends Application {
+public class OperatorPage extends Application {
 
     private OperatorEntity operatorEntity;
     private TableView<TicketEntity> tableView = new TableView<>();
     private final ObservableList<TicketEntity> ticketData = FXCollections.observableArrayList();
 
-    public SelectTicketForOperator(OperatorEntity operatorEntity) {
+    public OperatorPage(OperatorEntity operatorEntity) {
         this.operatorEntity = operatorEntity;
     }
 
@@ -31,7 +31,7 @@ public class SelectTicketForOperator extends Application {
     public void start(Stage stage) {
         BorderPane mainLayout = new BorderPane();
 
-        // 顶部标题
+        // top heading
         Label title = new Label("Support Ticket Management System");
         title.setFont(Font.font(24));
         HBox header = new HBox(title);
@@ -39,7 +39,7 @@ public class SelectTicketForOperator extends Application {
         header.setAlignment(Pos.CENTER);
         mainLayout.setTop(header);
 
-        // 左侧面板 - 操作选项
+        // Left Panel - Operation Options
         VBox leftPanel = new VBox(15);
         leftPanel.setPadding(new Insets(15));
         leftPanel.setPrefWidth(250);
@@ -66,12 +66,12 @@ public class SelectTicketForOperator extends Application {
         leftPanel.getChildren().addAll(operatorLabel, refreshButton, statusFilter, filterButton);
         mainLayout.setLeft(leftPanel);
 
-        // 中央面板 - 工单表格
+        // Central Panel - Work Order Form
         setupTicketTable();
         ScrollPane scrollPane = new ScrollPane(tableView);
         mainLayout.setCenter(scrollPane);
 
-        // 底部面板 - 操作按钮
+        // Bottom Panel - Operation Buttons
         HBox bottomPanel = new HBox(10);
         bottomPanel.setPadding(new Insets(10));
         bottomPanel.setAlignment(Pos.CENTER_RIGHT);
@@ -89,15 +89,15 @@ public class SelectTicketForOperator extends Application {
                 notesField.getText()
         ));
 
-        // 添加注销按钮到右下角
+        // Add the logout button to the bottom right corner
         Button logoutButton = new Button("Logout");
-        logoutButton.getStyleClass().add("button5"); // 使用蓝色样式
+        logoutButton.getStyleClass().add("button5"); // Use the blue style
         logoutButton.setOnAction(e -> {
             stage.close();
             new MainLogin().start(new Stage());
         });
 
-        // 添加弹簧将注销按钮推到最右边
+        // Adding a spring pushes the logout button to the far right
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
@@ -105,12 +105,12 @@ public class SelectTicketForOperator extends Application {
                 new Label("Status:"), statusCombo,
                 new Label("Notes:"), notesField,
                 updateButton,
-                spacer, // 弹簧
-                logoutButton // 注销按钮
+                spacer, // sprung
+                logoutButton // logout button
         );
         mainLayout.setBottom(bottomPanel);
 
-        // 加载分配给当前操作员的工单
+        // Load the work order assigned to the current operator
         loadMyTickets();
 
         Scene scene = new Scene(mainLayout, 1000, 700);
@@ -154,11 +154,11 @@ public class SelectTicketForOperator extends Application {
         tableView.setItems(ticketData);
     }
 
-    // 只加载分配给当前操作员的工单
+    // Load only work orders assigned to the current operator
     private void loadMyTickets() {
         ticketData.clear();
         for (TicketEntity ticket : DBHelper.getAllTickets()) {
-            // 只显示分配给当前操作员且未关闭的工单
+            // Show only work orders assigned to the current operator that have not been closed
             if (operatorEntity.getName().equals(ticket.getAssignedTo()) &&
                     !"Closed".equals(ticket.getStatus())) {
                 ticketData.add(ticket);
@@ -169,7 +169,7 @@ public class SelectTicketForOperator extends Application {
     private void filterTicketsByStatus(String status) {
         ticketData.clear();
         for (TicketEntity ticket : DBHelper.getAllTickets()) {
-            // 只显示分配给当前操作员且符合状态筛选条件的工单
+            // Only work orders assigned to the current operator that meet the status filter criteria are displayed.
             if (operatorEntity.getName().equals(ticket.getAssignedTo()) &&
                     ("All".equals(status) || ticket.getStatus().equals(status))) {
                 ticketData.add(ticket);
@@ -184,21 +184,21 @@ public class SelectTicketForOperator extends Application {
                 selected.setStatus(newStatus);
             }
 
-            // 修改这里：替换备注而不是追加
+            // Modify here: replace note instead of appending
             if (!newNotes.isEmpty()) {
-                // 直接使用新备注替换旧备注
+                // Direct replacement of old notes with new notes
                 selected.setNotes(newNotes);
             }
 
-            // 确保分配给自己
+            // Ensure that they are assigned to themselves
             selected.setAssignedTo(operatorEntity.getName());
 
-            // 更新时间戳
+            // update timestamp
             selected.setLastUpdated(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 
             DBHelper.updateTicket(selected);
 
-            // 如果工单被关闭，立即从表格中移除
+            // If a work order is closed, immediately remove it from the form
             if ("Closed".equals(newStatus)) {
                 tableView.getItems().remove(selected);
             } else {

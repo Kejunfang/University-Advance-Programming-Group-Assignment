@@ -14,12 +14,12 @@ public class TicketEntity {
     private String createdTime = "";
     private String lastUpdated = "";
 
-    // 自动生成时间戳
+    // Automatic generation of timestamps
     private static String getCurrentTime() {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
     }
 
-    // 修改无参构造方法，初始化字符串为空值
+    // Modify the parameterless constructor to initialize the string to null
     public TicketEntity() {
         this.ticketId = "";
         this.issueType = "";
@@ -68,14 +68,14 @@ public class TicketEntity {
 
     public String getCreatedTime() { return createdTime; }
 
-    // 添加 setCreatedTime 方法
+    // Add setCreatedTime method
     public void setCreatedTime(String createdTime) {
         this.createdTime = createdTime;
     }
 
     public String getLastUpdated() { return lastUpdated; }
 
-    // 添加 setLastUpdated 方法
+    // Add setLastUpdated method
     public void setLastUpdated(String lastUpdated) {
         this.lastUpdated = lastUpdated;
     }

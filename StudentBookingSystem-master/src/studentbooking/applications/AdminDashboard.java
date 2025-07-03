@@ -35,21 +35,21 @@ public class AdminDashboard extends Application {
     public void start(Stage stage) {
         TabPane tabPane = new TabPane();
 
-        // 工单管理标签页 - 添加了分配功能
+        // Work Order Management Tab - Added Assignment Functionality
         Tab ticketsTab = new Tab("Tickets");
         ticketsTab.setContent(createTicketsTab());
 
-        // 用户管理标签页
+        // User Management Tab
         Tab usersTab = new Tab("Users");
         usersTab.setContent(createUsersTab());
 
-        // 操作员管理标签页
+        // Operator Management Tab
         Tab operatorsTab = new Tab("Operators");
         operatorsTab.setContent(createOperatorsTab());
 
         tabPane.getTabs().addAll(ticketsTab, usersTab, operatorsTab);
 
-        // 底部注销按钮
+        // Logout button at the bottom
         Button logoutButton = new Button("Logout");
         logoutButton.setOnAction(e -> {
             stage.close();
@@ -65,7 +65,7 @@ public class AdminDashboard extends Application {
         bottomBox.setPadding(new Insets(10));
         mainLayout.setBottom(bottomBox);
 
-        // 加载数据
+        // Load data
         loadAllData();
 
         Scene scene = new Scene(mainLayout, 1000, 700);
@@ -75,38 +75,38 @@ public class AdminDashboard extends Application {
         stage.show();
     }
 
-    // 创建工单管理标签页内容 - 添加了分配功能
+    // Create Work Order Management Tab Content - Added Assignment Functionality
     private VBox createTicketsTab() {
-        // 设置表格列
+        // Setting up table columns
         setupTicketTable();
 
-        // 修复：使用成员变量而不是局部变量
+        // Fix: use member variables instead of local variables
         operatorCombo = new ComboBox<>();
         operatorCombo.setPrefWidth(150);
 
-        // 刷新按钮
+        // refresh button
         Button refreshButton = new Button("Refresh Tickets");
         refreshButton.setOnAction(e -> loadTicketData());
 
-        // 分配工单区域
+        // Allocation of work order areas
         HBox assignBox = new HBox(10);
         assignBox.setAlignment(Pos.CENTER_LEFT);
         assignBox.setPadding(new Insets(0, 10, 10, 10));
 
         Label assignLabel = new Label("Assign to:");
-        // 修复：使用成员变量而不是局部变量
-        // ComboBox<String> operatorCombo = new ComboBox<>(); // 删除这行
-        // operatorCombo.setPrefWidth(150); // 删除这行
+        // Fix: Use member variables instead of local variables
+        // ComboBox<String> operatorCombo = new ComboBox<>(); // Delete this line
+        // operatorCombo.setPrefWidth(150); // Delete this line
 
-        // 加载操作员列表
-        refreshOperatorCombo(); // 直接调用刷新方法
+        // Load Operator List
+        refreshOperatorCombo(); // Calling the refresh method directly
 
         Button assignButton = new Button("Assign Ticket");
         assignButton.setOnAction(e -> assignTicketToOperator(operatorCombo.getValue()));
 
         assignBox.getChildren().addAll(assignLabel, operatorCombo, assignButton);
 
-        // 操作按钮区域
+        // Operation button area
         HBox buttonBox = new HBox(10, refreshButton, assignBox);
         buttonBox.setPadding(new Insets(10));
         buttonBox.setAlignment(Pos.CENTER_LEFT);
@@ -117,38 +117,37 @@ public class AdminDashboard extends Application {
         return vbox;
     }
 
-    // 添加刷新操作员下拉框的方法
+    // Ways to add a Refresh Operator drop-down box
     private void refreshOperatorCombo() {
         operatorCombo.getItems().clear();
-        operatorCombo.getItems().addAll(DBHelper.getAllOperatorNames());
+        // 假设DBHelper.getAllOperatorIds()返回List<String>，每项为操作员ID
+        operatorCombo.getItems().addAll(DBHelper.getAllOperatorIds());
     }
 
 
-    // 将选中的工单分配给操作员
-    // 将选中的工单分配给操作员
-// 将选中的工单分配给操作员
-    private void assignTicketToOperator(String operatorName) {
+    // Assign selected work orders to operators
+    private void assignTicketToOperator(String operatorId) {
         TicketEntity selectedTicket = ticketTable.getSelectionModel().getSelectedItem();
-        if (selectedTicket != null && operatorName != null && !operatorName.isEmpty()) {
-            selectedTicket.setAssignedTo(operatorName);
+        if (selectedTicket != null && operatorId != null && !operatorId.isEmpty()) {
+            selectedTicket.setAssignedTo(operatorId); // Use ID here
             selectedTicket.setStatus("Assigned");
             selectedTicket.setLastUpdated(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 
-            DBHelper.updateTicket(selectedTicket); // 确保调用更新方法
+            DBHelper.updateTicket(selectedTicket);
 
             ticketTable.refresh();
-            new Alert(Alert.AlertType.INFORMATION, "Ticket assigned to " + operatorName).show();
+            new Alert(Alert.AlertType.INFORMATION, "Ticket assigned to operator ID: " + operatorId).show();
         } else {
-            new Alert(Alert.AlertType.WARNING, "Please select a ticket and an operator").show();
+            new Alert(Alert.AlertType.WARNING, "Please select a ticket and an operator ID").show();
         }
     }
 
-    // 创建用户管理标签页内容
+    // Creating user management tab content
     private VBox createUsersTab() {
-        // 设置表格列
+        // Setting up table columns
         setupStudentTable();
 
-        // 操作按钮
+        // push button
         Button refreshButton = new Button("Refresh Users");
         refreshButton.setOnAction(e -> loadStudentData());
 
@@ -168,12 +167,12 @@ public class AdminDashboard extends Application {
         return vbox;
     }
 
-    // 创建操作员管理标签页内容
+    // Creating Operator Management Tab Content
     private VBox createOperatorsTab() {
-        // 设置表格列
+        // Setting up table columns
         setupOperatorTable();
 
-        // 操作按钮
+        // cpush button
         Button refreshButton = new Button("Refresh Operators");
         refreshButton.setOnAction(e -> loadOperatorData());
 
@@ -193,7 +192,7 @@ public class AdminDashboard extends Application {
         return vbox;
     }
 
-    // 设置工单表格列
+    // Setting up work order form columns
     private void setupTicketTable() {
         ticketTable.getColumns().clear();
 
@@ -228,7 +227,7 @@ public class AdminDashboard extends Application {
         ticketTable.setItems(ticketData);
     }
 
-    // 设置学生表格列
+    // Setting up Student Form Columns
     private void setupStudentTable() {
         studentTable.getColumns().clear();
 
@@ -263,7 +262,7 @@ public class AdminDashboard extends Application {
         studentTable.setItems(studentData);
     }
 
-    // 设置操作员表格列
+    // Setting Up Operator Form Columns
     private void setupOperatorTable() {
         operatorTable.getColumns().clear();
 
@@ -283,11 +282,11 @@ public class AdminDashboard extends Application {
         operatorTable.setItems(operatorData);
     }
 
-    // 加载所有数据
+    // Load all data
     private void loadAllData() {
         loadTicketData();
         loadStudentData();
-        loadOperatorData(); // 确保调用这个方法
+        loadOperatorData(); // Make sure to call this method
     }
 
 
@@ -313,17 +312,17 @@ public class AdminDashboard extends Application {
         System.out.println("Found " + operators.size() + " operators");
         operatorData.setAll(operators);
 
-        // 同时刷新下拉框
+        // Refresh the dropdown box at the same time
         refreshOperatorCombo();
     }
 
-    // 添加用户对话框
+    // Add the User dialog box
     private void showAddUserDialog() {
         Dialog<StudentEntity> dialog = new Dialog<>();
         dialog.setTitle("Add New User");
         dialog.setHeaderText("Enter user details");
 
-        // 创建表单
+        // Creating Forms
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
@@ -363,11 +362,11 @@ public class AdminDashboard extends Application {
 
         dialog.getDialogPane().setContent(grid);
 
-        // 添加按钮
+        // Add button
         ButtonType addButton = new ButtonType("Add", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(addButton, ButtonType.CANCEL);
 
-        // 结果转换器
+        // Results Converter
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == addButton) {
                 try {
@@ -391,22 +390,21 @@ public class AdminDashboard extends Application {
             return null;
         });
 
-        // 处理结果
-        // 处理结果
-        dialog.showAndWait().ifPresent(student -> {  // 这里应该是 student，不是 operator
-            DBHelper.addStudent(student);  // 改为添加学生
-            loadStudentData();  // 刷新学生表格
+        // Results Converter
+        dialog.showAndWait().ifPresent(student -> {  // It's student, not operator.
+            DBHelper.addStudent(student);  // Change to add students
+            loadStudentData();  // Refresh Student Forms
             new Alert(Alert.AlertType.INFORMATION, "Student added successfully").show();
         });
     }
 
-    // 添加操作员对话框
+    // Add Operator dialog box
     private void showAddOperatorDialog() {
         Dialog<OperatorEntity> dialog = new Dialog<>();
         dialog.setTitle("Add New Operator");
         dialog.setHeaderText("Enter operator details");
 
-        // 创建表单
+        // Creating Forms
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
@@ -431,15 +429,15 @@ public class AdminDashboard extends Application {
 
         dialog.getDialogPane().setContent(grid);
 
-        // 添加按钮
+        // Add button
         ButtonType addButton = new ButtonType("Add", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(addButton, ButtonType.CANCEL);
 
-        // 结果转换器 - 修复验证逻辑
+        // Result Converter - Fix Validation Logic
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == addButton) {
                 try {
-                    // 验证必填字段
+                    // Validating Required Fields
                     if (accountField.getText().isEmpty() ||
                             passwordField.getText().isEmpty() ||
                             nameField.getText().isEmpty()) {
@@ -464,18 +462,18 @@ public class AdminDashboard extends Application {
             return null;
         });
 
-        // 处理结果 - 添加实际保存逻辑
+        // Processing results - adding the actual save logic
         dialog.showAndWait().ifPresent(operator -> {
             DBHelper.addOperator(operator);
-            loadOperatorData(); // 刷新操作员表格
+            loadOperatorData(); // Refresh Operator Form
 
-            // 修复：添加下拉框刷新
+            // Fix: Add dropdown box refresh
             refreshOperatorCombo();
             new Alert(Alert.AlertType.INFORMATION, "Operator added successfully").show();
         });
     }
 
-    // 删除选中的用户
+    // Delete selected users
     private void deleteSelectedUser() {
         StudentEntity selected = studentTable.getSelectionModel().getSelectedItem();
         if (selected != null) {
@@ -486,11 +484,11 @@ public class AdminDashboard extends Application {
         }
     }
 
-    // 删除选中的操作员
+    // Delete selected operators
     private void deleteSelectedOperator() {
         OperatorEntity selected = operatorTable.getSelectionModel().getSelectedItem();
         if (selected != null) {
-            // 确认对话框
+            // cConfirmation dialog box
             Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
             confirm.setTitle("Confirm Deletion");
             confirm.setHeaderText("Delete Operator");
@@ -499,9 +497,9 @@ public class AdminDashboard extends Application {
             confirm.showAndWait().ifPresent(response -> {
                 if (response == ButtonType.OK) {
                     DBHelper.deleteOperator(selected.getAccount());
-                    loadOperatorData(); // 刷新操作员表格
+                    loadOperatorData(); // Refresh Operator Form
 
-                    // 修复：添加下拉框刷新
+                    // Fix: Add dropdown box refresh
                     refreshOperatorCombo();
                     new Alert(Alert.AlertType.INFORMATION, "Operator deleted successfully").show();
                 }
