@@ -27,7 +27,7 @@ public class DBHelper {
         // Initialize administrator data only
         if (isFileEmpty(OPERATOR_FILE)) {
             System.out.println("Initializing operator data...");
-            List<String> operatorData = Arrays.asList(
+            List<String> operatorData = List.of(
                     "1001,admin123,Admin User,Male,555-0001"
             );
             writeAllRecords(OPERATOR_FILE, operatorData);

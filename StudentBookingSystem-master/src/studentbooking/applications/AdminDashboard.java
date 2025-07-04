@@ -8,7 +8,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import studentbooking.bean.StudentEntity;
 import studentbooking.bean.TicketEntity;
@@ -22,9 +21,9 @@ import java.util.List;
 
 public class AdminDashboard extends Application {
 
-    private TableView<TicketEntity> ticketTable = new TableView<>();
-    private TableView<StudentEntity> studentTable = new TableView<>();
-    private TableView<OperatorEntity> operatorTable = new TableView<>();
+    private final TableView<TicketEntity> ticketTable = new TableView<>();
+    private final TableView<StudentEntity> studentTable = new TableView<>();
+    private final TableView<OperatorEntity> operatorTable = new TableView<>();
     private final ObservableList<TicketEntity> ticketData = FXCollections.observableArrayList();
     private final ObservableList<StudentEntity> studentData = FXCollections.observableArrayList();
     private final ObservableList<OperatorEntity> operatorData = FXCollections.observableArrayList();

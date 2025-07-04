@@ -19,8 +19,8 @@ import java.util.Date;
 
 public class OperatorPage extends Application {
 
-    private OperatorEntity operatorEntity;
-    private TableView<TicketEntity> tableView = new TableView<>();
+    private final OperatorEntity operatorEntity;
+    private final TableView<TicketEntity> tableView = new TableView<>();
     private final ObservableList<TicketEntity> ticketData = FXCollections.observableArrayList();
 
     public OperatorPage(OperatorEntity operatorEntity) {
@@ -158,8 +158,8 @@ public class OperatorPage extends Application {
     private void loadMyTickets() {
         ticketData.clear();
         for (TicketEntity ticket : DBHelper.getAllTickets()) {
-            // Show only work orders assigned to the current operator that have not been closed
-            if (operatorEntity.getName().equals(ticket.getAssignedTo()) &&
+            // 使用操作员ID进行匹配
+            if (String.valueOf(operatorEntity.getAccount()).equals(ticket.getAssignedTo()) &&
                     !"Closed".equals(ticket.getStatus())) {
                 ticketData.add(ticket);
             }
@@ -169,8 +169,8 @@ public class OperatorPage extends Application {
     private void filterTicketsByStatus(String status) {
         ticketData.clear();
         for (TicketEntity ticket : DBHelper.getAllTickets()) {
-            // Only work orders assigned to the current operator that meet the status filter criteria are displayed.
-            if (operatorEntity.getName().equals(ticket.getAssignedTo()) &&
+            // 使用操作员ID进行匹配
+            if (String.valueOf(operatorEntity.getAccount()).equals(ticket.getAssignedTo()) &&
                     ("All".equals(status) || ticket.getStatus().equals(status))) {
                 ticketData.add(ticket);
             }
@@ -191,8 +191,7 @@ public class OperatorPage extends Application {
             }
 
             // Ensure that they are assigned to themselves
-            selected.setAssignedTo(operatorEntity.getName());
-
+            selected.setAssignedTo(String.valueOf(operatorEntity.getAccount()));
             // update timestamp
             selected.setLastUpdated(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 

@@ -16,9 +16,9 @@ import javafx.stage.Stage;
 
 public class UserPage extends Application {
 
-    private StudentEntity studentEntity;
-    private TableView<TicketEntity> activeTicketTable = new TableView<>();
-    private TableView<TicketEntity> resolvedTicketTable = new TableView<>();
+    private final StudentEntity studentEntity;
+    private final TableView<TicketEntity> activeTicketTable = new TableView<>();
+    private final TableView<TicketEntity> resolvedTicketTable = new TableView<>();
     private final ObservableList<TicketEntity> activeTicketData = FXCollections.observableArrayList();
     private final ObservableList<TicketEntity> resolvedTicketData = FXCollections.observableArrayList();
 

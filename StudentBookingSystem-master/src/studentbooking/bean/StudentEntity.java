@@ -1,9 +1,6 @@
 package studentbooking.bean;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import java.util.Objects;
 
 /**
  * @ LiuXinran
@@ -107,17 +104,15 @@ public class StudentEntity {
         StudentEntity that = (StudentEntity) o;
 
         if (age != that.age) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (sex != null ? !sex.equals(that.sex) : that.sex != null) return false;
-        if (password != null ? !password.equals(that.password) : that.password != null) return false;
-        if (studentId != null ? !studentId.equals(that.studentId) : that.studentId != null) return false;
-        if (university != null ? !university.equals(that.university) : that.university != null) return false;
-        if (faculty != null ? !faculty.equals(that.faculty) : that.faculty != null) return false;
-        if (profession != null ? !profession.equals(that.profession) : that.profession != null) return false;
-        if (phoneNum != null ? !phoneNum.equals(that.phoneNum) : that.phoneNum != null) return false;
-        if (address != null ? !address.equals(that.address) : that.address != null) return false;
-
-        return true;
+        if (!Objects.equals(name, that.name)) return false;
+        if (!Objects.equals(sex, that.sex)) return false;
+        if (!Objects.equals(password, that.password)) return false;
+        if (!Objects.equals(studentId, that.studentId)) return false;
+        if (!Objects.equals(university, that.university)) return false;
+        if (!Objects.equals(faculty, that.faculty)) return false;
+        if (!Objects.equals(profession, that.profession)) return false;
+        if (!Objects.equals(phoneNum, that.phoneNum)) return false;
+        return Objects.equals(address, that.address);
     }
 
     public int hashCode() {

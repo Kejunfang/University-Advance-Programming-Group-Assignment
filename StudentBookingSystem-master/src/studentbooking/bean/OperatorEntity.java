@@ -1,6 +1,6 @@
 package studentbooking.bean;
 
-import javax.persistence.*;
+import java.util.Objects;
 
 /**
  * @ LiuXinran
@@ -71,12 +71,10 @@ public class OperatorEntity {
         OperatorEntity that = (OperatorEntity) o;
 
         if (account != that.account) return false;
-        if (password != null ? !password.equals(that.password) : that.password != null) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (sex != null ? !sex.equals(that.sex) : that.sex != null) return false;
-        if (phoneNum != null ? !phoneNum.equals(that.phoneNum) : that.phoneNum != null) return false;
-
-        return true;
+        if (!Objects.equals(password, that.password)) return false;
+        if (!Objects.equals(name, that.name)) return false;
+        if (!Objects.equals(sex, that.sex)) return false;
+        return Objects.equals(phoneNum, that.phoneNum);
     }
 
     public int hashCode() {
