@@ -1,3 +1,32 @@
+## File Structure
+1. **Data** : Store the data, include operator, student and ticket, all the format is in .txt file
+2. **Application** : The pages that will show to the user, include login page, admin page, operator page, and user page.
+3. **bean**: Store the data of the database, user can take and store the data through these file,we store Operator entity, Student entity,and Ticket entity.
+4. **DBHelper** : Help to store the data in the system.
+
+## Pages
+
+### Login Page
+1. Have 3 kind of user: User, Operator and Admin
+2. If the user are Typing the wrong password, user are not able to log in.
+3. If the user are new, which mean there are no username and password in the text file
+
+### User Page
+1. User can write the ticket information in the page, which is can write issue type, and the description
+2. After user have write the ticket, the ticket will show at the table, if the ticket is resolve, the ticket will show at the resolve table.
+3. User can edit their profile if their want.
+
+### Operator Page
+1. Operator will need to write the reply for the ticket that is assigned by the admin
+2. Operator can change the progress of the ticket , and write the note to the user, user will see the note that operator write.
+
+### Admin Page
+1. There is total three control pages in admin page
+2. admin can assign the ticket to the operator
+3. Admin can edit the user(add/delete)
+4. Admin can edit the Operator(add/delete)
+
+
 ## Environment
 1. Programming Language: Java, SDK: 24
 2. Software Platform: IntelliJ IDEA
